@@ -17,16 +17,16 @@ declare(strict_types=1);
 
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 
+use App\Service\EnvValidator;
+use App\Service\BootstrapService;
+use App\Controller\HomeController;
+use JulienLinard\Auth\AuthManager;
 use JulienLinard\Core\Application;
+use App\Service\EventListenerService;
+use JulienLinard\Doctrine\EntityManager;
 use JulienLinard\Core\Middleware\CsrfMiddleware;
 use JulienLinard\Validator\Validator as PhpValidator;
 use JulienLinard\Core\Form\Validator as CoreValidator;
-use App\Controller\HomeController;
-use App\Service\EnvValidator;
-use App\Service\EventListenerService;
-use App\Service\BootstrapService;
-use JulienLinard\Doctrine\EntityManager;
-use JulienLinard\Auth\AuthManager;
 
 // ============================================
 // ÉTAPE 1 : CRÉATION DE L'APPLICATION

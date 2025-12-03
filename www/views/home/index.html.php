@@ -1,61 +1,24 @@
-<header class="bg-blue-700 shadow-md mb-8">
-    <div class="bg-[url(../../public/assets/image/mm-icon.woff)]">
-        <div>
-            <div>
-                <div>
-                    <a href="#">
-                        <img  src="" alt="">
-                    </a>
-                </div>
-                <div class="mb-6 flex justify-end gap-4">
-                    <?php if ($isAuthenticated ?? false): ?>
-                        <div class="flex items-center gap-4">
-                            <span class="text-gray-700">
-                                Bonjour, <strong><?= htmlspecialchars($user->firstname ?? $user->email) ?></strong>
-                            </span>
-                            <a
-                                href="/todos"
-                                class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition duration-150">
-                                Mes Todos
-                            </a>
-                            <?php if (($user->role ?? 'user') === 'admin'): ?>
-                                <a
-                                    href="/admin"
-                                    class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-150">
-                                    Back Office
-                                </a>
-                            <?php endif; ?>
-                            <form method="POST" action="/logout" class="inline">
-                                <?= \JulienLinard\Core\Middleware\CsrfMiddleware::field() ?>
-                                <button
-                                    type="submit"
-                                    class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition duration-150">
-                                    Déconnexion
-                                </button>
-                            </form>
-                        </div>
-                    <?php else: ?>
-                        <div class="flex items-center gap-4">
-                            <a
-                                href="/login"
-                                class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-150">
-                                Connexion
-                            </a>
-                            <a
-                                href="/register"
-                                class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition duration-150">
-                                Inscription
-                            </a>
-                        </div>
-                    <?php endif; ?>
-                </div>
+<header class=" bg-[#52ae32] shadow-md mb-8 ">
+    <div class=" container  mx-auto flex items-center justify-between gap-4 md:gap-10">
+        <div class="bg-blue-800  p-2">
+            <a href="#">
+                <img src="assets/image/logo-micromania.svg" alt="" >
+            </a>
+        </div>
+        <div class="flex space-x-2 items-center">
+            <div class=" ">
+                <button class="text-gray-900 bg-stone-200 hover:bg-gray-100 p-2 text-sm md:text-xl rounded transition duration-300" type="submit" > Connexion</button>
             </div>
+            <div>
+                <button class="text-gray-900 bg-stone-200 hover:bg-gray-100 p-2 text-sm md:text-xl rounded transition duration-300 " type="submit">
+                    Inscription
+                </button>
+            </div>  
         </div>
     </div>
-
 </header>
 
-<div class="container mx-auto px-4 py-8">
+<div class="container">
     <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-8">
 
         <h1 class="text-4xl font-bold text-gray-800 mb-4"><?= htmlspecialchars($title ?? 'Welcome') ?></h1>
