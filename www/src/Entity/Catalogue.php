@@ -1,7 +1,5 @@
 <?php
 
-
-
 namespace App\Entity;
 
 use DateTime;
@@ -20,7 +18,7 @@ use JulienLinard\Doctrine\Mapping\ManyToOne;
 class Catalogue
 {
     /**
-     * ID du jeux créer (clé primaire)
+     * ID de la tâche (clé primaire)
      * 
      * CONCEPT : Clé primaire auto-incrémentée
      * L'ID est généré automatiquement par la base de données
@@ -30,7 +28,7 @@ class Catalogue
     public ?int $id = null;
 
     /**
-     * Titre de la tâche
+     * Titre du jeux
      * 
      * CONCEPT : Contrainte de longueur
      * VARCHAR(255) → maximum 255 caractères

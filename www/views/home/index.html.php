@@ -41,7 +41,7 @@
         <div class="flex items-center space-x-3 sm:space-x-4">
 
             <!-- Compte -->
-            <a href="#" aria-label="Mon Compte"
+            <a href="/login" aria-label="Mon Compte"
                class="p-2 text-white rounded-md hover:text-[#E60028] focus:outline-none focus:ring-2 focus:ring-[#E60028]">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round"
