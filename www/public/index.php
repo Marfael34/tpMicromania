@@ -17,16 +17,17 @@ declare(strict_types=1);
 
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 
-use App\Service\EnvValidator;
-use App\Service\BootstrapService;
-use App\Controller\HomeController;
-use JulienLinard\Auth\AuthManager;
 use JulienLinard\Core\Application;
-use App\Service\EventListenerService;
-use JulienLinard\Doctrine\EntityManager;
 use JulienLinard\Core\Middleware\CsrfMiddleware;
 use JulienLinard\Validator\Validator as PhpValidator;
 use JulienLinard\Core\Form\Validator as CoreValidator;
+use App\Controller\HomeController;
+use App\Controller\AuthController;
+use App\Service\EnvValidator;
+use App\Service\EventListenerService;
+use App\Service\BootstrapService;
+use JulienLinard\Doctrine\EntityManager;
+use JulienLinard\Auth\AuthManager;
 
 // ============================================
 // ÉTAPE 1 : CRÉATION DE L'APPLICATION
@@ -135,14 +136,11 @@ $container->singleton(CoreValidator::class, function() use ($container) {
     return $coreValidator;
 });
 
-// Enregistrer FileUploadService comme singleton (si la classe existe)
+// Enregistrer FileUploadService comme singleton
 // CONCEPT : Service d'upload de fichiers avec validation intégrée
-// Note : Ce service doit être créé dans src/Service/FileUploadService.php si nécessaire
-if (class_exists(\App\Service\FileUploadService::class)) {
-    $container->singleton(\App\Service\FileUploadService::class, function() use ($container) {
-        return new \App\Service\FileUploadService();
-    });
-}
+$container->singleton(\App\Service\FileUploadService::class, function() use ($container) {
+    return new \App\Service\FileUploadService();
+});
 
 // ============================================
 // ÉTAPE 10 : CONFIGURATION DU ROUTER ET MIDDLEWARES
@@ -177,6 +175,8 @@ EventListenerService::register($events, $logger);
 // Les routes sont définies directement dans les contrôleurs avec des attributs #[Route]
 // Le router scanne les contrôleurs et enregistre automatiquement les routes
 $router->registerRoutes(HomeController::class);
+$router->registerRoutes(AuthController::class);
+$router->registerRoutes(\App\Controller\AdminController::class);
 
 // Démarrer l'application
 $app->start();
