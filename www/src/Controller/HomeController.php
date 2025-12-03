@@ -36,8 +36,8 @@ class HomeController extends Controller
         $user = $this->auth->user();
         
         return $this->view('home/index', [
-            'title' => 'Welcome',
-            'message' => 'Hello World!',
+            'title' => 'Bienvenue sur Micromania',
+            'message' => 'Tous les jeux, sur toute les consoles pour vivre votre passion !',
             'user' => $user,
             'isAuthenticated' => $this->auth->check()
         ]);
