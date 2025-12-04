@@ -13,24 +13,27 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use JulienLinard\Core\Controller\Controller;
-use JulienLinard\Router\Attributes\Route;
+use App\Entity\User;
 use JulienLinard\Router\Request;
 use JulienLinard\Router\Response;
+use App\Repository\UserRepository;
 use JulienLinard\Auth\AuthManager;
-use JulienLinard\Auth\Middleware\GuestMiddleware;
-use JulienLinard\Auth\Middleware\AuthMiddleware;
-use JulienLinard\Doctrine\EntityManager;
 use JulienLinard\Core\Form\Validator;
 use JulienLinard\Core\Session\Session;
-use App\Entity\User;
-use App\Repository\UserRepository;
+use JulienLinard\Doctrine\EntityManager;
+use JulienLinard\Router\Attributes\Route;
+use JulienLinard\Core\Controller\Controller;
+use JulienLinard\Auth\Middleware\AuthMiddleware;
+use JulienLinard\Auth\Middleware\GuestMiddleware;
+
+
 
 class AuthController extends Controller
 {
     public function __construct(
         private AuthManager $auth,
         private EntityManager $em,
+        private UserRepository $userRepository,
         private Validator $validator
     ) {}
     
@@ -104,7 +107,7 @@ class AuthController extends Controller
      * 
      * CONCEPT : Route protégée par GuestMiddleware
      */
-    #[Route(path: '/register', methods: ['GET'], name: 'register', middleware: [new GuestMiddleware()])]
+    #[Route(path:'/register', methods: ['GET'], name: 'register', middleware: [new GuestMiddleware()])]
     public function registerForm(): Response
     {
         return $this->view('auth/register', [
@@ -135,8 +138,7 @@ class AuthController extends Controller
             $errors['email'] = 'L\'email n\'est pas valide';
         } else {
             // Vérifier si l'email existe déjà
-            $userRepo = $this->em->createRepository(UserRepository::class, User::class);
-            if ($userRepo->emailExists($email)) {
+            if ($this->userRepository->emailExists($email)) {
                 $errors['email'] = 'Cet email est déjà utilisé';
             }
         }
@@ -178,12 +180,10 @@ class AuthController extends Controller
         try {
             $user = new User();
             $user->email = $email;
-            $user->password = password_hash($password, PASSWORD_BCRYPT);
-            $user->firstname = $firstname;
-            $user->lastname = $lastname;
-            $user->role = 'user';
-            $user->created_at = new \DateTime();
-            $user->updated_at = new \DateTime();
+            $user->mot_de_passe = password_hash($password, PASSWORD_BCRYPT);
+            $user->prenom = $firstname;
+            $user->nom = $lastname;
+            $user->role_id = 1;
             
             $this->em->persist($user);
             $this->em->flush();

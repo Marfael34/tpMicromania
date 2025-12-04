@@ -3,7 +3,7 @@
 
         <!-- Logo -->
         <div class="bg-blue-800 h-16 p-2">
-            <a href="#" aria-label="Accueil Micromania">
+            <a href="/" aria-label="Accueil Micromania">
                 <img 
                     src="assets/image/logo-micromania.svg" 
                     alt="Logo Micromania" 
@@ -38,7 +38,6 @@
         </div>
 
         <!-- Icônes (compte, panier, menu mobile) -->
-        <div class="flex items-center space-x-3 sm:space-x-4">
 
             <!-- Compte -->
             <a href="/login" aria-label="Mon Compte"
@@ -58,10 +57,8 @@
                 </svg>
 
             </a>
-
-            
-
         </div>
+
     </div>
 
 

@@ -13,11 +13,20 @@ declare(strict_types=1);
 
 namespace App\Repository;
 
-use JulienLinard\Doctrine\Repository\EntityRepository;
 use App\Entity\User;
+use JulienLinard\Doctrine\EntityManager;
+use JulienLinard\Doctrine\Repository\EntityRepository;
 
 class UserRepository extends EntityRepository
 {
+    public function __construct(EntityManager $em, string $entityClass = User::class)
+    {
+        parent::__construct(
+            $em->getConnection(),
+            $em->getMetadataReader(),
+            $entityClass
+        );
+    }
     /**
      * Trouve un utilisateur par son email
      * 
