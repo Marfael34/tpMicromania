@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use JulienLinard\Doctrine\Mapping\Id;
+use JulienLinard\Doctrine\Mapping\Column;
 use JulienLinard\Doctrine\Mapping\Entity;
 
 #[Entity(table: "plateforme")]

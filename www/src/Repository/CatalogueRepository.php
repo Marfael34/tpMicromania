@@ -11,7 +11,7 @@ use App\Entity\CatalogueGenre;
 use App\Entity\CataloguePlateforme;
 use JulienLinard\Doctrine\EntityManager;
 use JulienLinard\Doctrine\Repository\EntityRepository;
-use JulienLinard\Doctrine\QueryBuilder;
+
 
 /**
  * Repository personnalisé pour l'entité Catalogue
@@ -44,7 +44,6 @@ class CatalogueRepository extends EntityRepository
         $qb->select("
                 c.id,
                 c.title,
-                c.media_path,
                 c.description,
                 c.price,
 
@@ -64,8 +63,7 @@ class CatalogueRepository extends EntityRepository
             ->orderBY('c.title');
             
 
-        $rows = $qb->execute();
-        fetchAll($rows);
+        $rows = $qb->getResult();
 
         // Transformation en structure exploitable
         foreach ($rows as &$row) {
@@ -80,4 +78,40 @@ class CatalogueRepository extends EntityRepository
     {
         return $this->findOneBy(['id' => $id]);
     }
+public function loadMediaRelations(Catalogue $catalogue): void
+{
+      if ($catalogue->id === null) {
+            return;
+        }
+        
+        // Charger les médias depuis la table de jointure
+        $joinTable = 'catalogue';
+        $sql = "SELECT media_path FROM `{$joinTable}` WHERE catalogue.id = :catalogue_id";
+        $rows = $this->connection->fetchAll($sql, ['catalogue_id' => $catalogue->id]);
+        
+        if (empty($rows)) {
+            $catalogue->media_path = '';
+            return;
+        }
+        $mediaIds = array_column($rows, 'media_id');
+        // Charger les médias
+        
+        $mediaRepository = new \App\Repository\MediaRepository(
+            $this->connection,
+            $this->metadataReader,
+            \App\Entity\Media::class,
+            $this->queryCache
+        );
+
+         $mediaArray = [];
+        foreach ($mediaIds as $mediaId) {
+            $media = $mediaRepository->find($mediaId);
+            if ($media !== null) {
+                $mediaArray[] = $media;
+            }
+        }
+        
+        $catalogue->media = $mediaArray;
+}
+    
 }

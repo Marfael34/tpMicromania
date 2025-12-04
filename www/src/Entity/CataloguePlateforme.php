@@ -1,8 +1,9 @@
 <?php
 namespace App\Entity;
 
-use Plateforme;
+use App\Entity\Plateforme;
 use JulienLinard\Doctrine\Mapping\Entity;
+use JulienLinard\Doctrine\Mapping\ManyToMany;
 
 
 #[Entity(table: "catalogue_plateforme")]
