@@ -1,5 +1,5 @@
 <header class="sticky top-0 z-50 bg-[#52ae32] shadow-lg">
-    <div class="max-w-7xl h-16 flex items-center justify-between">
+    <div class="max-w-8xl h-16 flex items-center justify-between">
 
         <!-- Logo -->
         <div class="bg-blue-800 h-16 p-2">
@@ -13,7 +13,7 @@
         </div>
 
         <!-- Barre de recherche (desktop) -->
-        <div class="hidden lg:block flex-1 max-w-lg mx-8">
+        <div class="hidden lg:block flex-1 max-w-lg mx-6">
             <label for="search-input" class="sr-only">Rechercher des produits</label>
             <div class="relative">
                 <input 
@@ -38,40 +38,59 @@
         </div>
 
         <!-- Icônes (compte, panier, menu mobile) -->
+        <div class="flex flex-row gap-4 mr-8">
 
             <!-- Compte -->
-            <a href="/login" aria-label="Mon Compte"
-               class="p-2 text-white rounded-md hover:text-[#E60028] focus:outline-none focus:ring-2 focus:ring-[#E60028]">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                </svg>
-            </a>
+            <div class="basis-2xs">
+                <a href="/login" aria-label="Mon Compte"
+                class="text-white rounded-md hover:text-[#E60028] focus:outline-none focus:ring-2 focus:ring-[#E60028]">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                    </svg>
+                </a>
+            </div>
 
             <!-- Panier -->
-            <a href="#" aria-label="Mon Panier"
-               class="p-2 text-white rounded-md hover:text-[#E60028] focus:outline-none focus:ring-2 focus:ring-[#E60028] relative">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                          d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
-                </svg>
-
-            </a>
-        </div>
-
+            <div class="basis-2xs">      
+                <a href="#" aria-label="Mon Panier"
+                class=" text-white rounded-md hover:text-[#E60028] focus:outline-none focus:ring-2 focus:ring-[#E60028] relative">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    </svg>
+                </a>
+            </div>
+           
+            <!-- Déconexion -->
+            <div class="basis-2xs ">
+                <form action="/logout" method="POST" onsubmit="return confirm('Etes vous sur de vouloir vous déconnecter ?')">
+                    <?php use JulienLinard\Core\View\ViewHelper; ?>
+                    <input type="hidden" name="_token" value="<?= htmlspecialchars(ViewHelper::csrfToken()) ?>">             <button type="submit" class="text-sm text-white  hover:text-gray-900 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M5 21q-.825 0-1.412-.587T3 19V5q0-.825.588-1.412T5 3h7v2H5v14h7v2zm11-4l-1.375-1.45l2.55-2.55H9v-2h8.175l-2.55-2.55L16 7l5 5z"/></svg>
+                    </button>
+                </form>
+            </div>
+            
+         </div>
+            
+    </div>
     </div>
 
 
 </header>
 
-<h1 class="text-4xl text-center font-bold text-gray-800 mb-4 "><?= htmlspecialchars($title ?? 'Welcome') ?></h1>
+<p class="text-4xl text-center font-bold text-gray-800 mb-4 mt-3">Bonjour, <?= htmlspecialchars($user->firstname) ?></p>
+<h1 class="text-3xl text-center font-bold text-gray-800 mb-4 "><?= htmlspecialchars($title ?? 'Welcome') ?></h1>
 <p class="text-xl text-gray-800 mb-6 px-4"><?= htmlspecialchars($message ?? 'Hello World!') ?></p>
+
 
 <div class="mx-auto max-w-7xl px-5 py-4 bg-gray-100 bg-white">
     <h2 class="text-2xl font-bold text-gray-800 mb-6">Sélection de Jeux</h2>
 
     <div class="grid grid-cols-1 gap-6 md:grid-cols-3 md:gap-8">
-
+        <!-- premier jeux -->
         <div class="bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
             <div class="p-4">
                 
@@ -109,7 +128,7 @@
                 </div>
             </div>
         </div>
-
+        <!-- deuxième jeux -->
         <div class="bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
             <div class="p-4">
                 

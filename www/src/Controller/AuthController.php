@@ -180,9 +180,9 @@ class AuthController extends Controller
         try {
             $user = new User();
             $user->email = $email;
-            $user->mot_de_passe = password_hash($password, PASSWORD_BCRYPT);
-            $user->prenom = $firstname;
-            $user->nom = $lastname;
+            $user->password = password_hash($password, PASSWORD_BCRYPT);
+            $user->firstname = $firstname;
+            $user->lastname = $lastname;
             $user->role_id = 1;
             
             $this->em->persist($user);

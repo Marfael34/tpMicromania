@@ -36,13 +36,13 @@ class User implements UserInterface
     public string $email;
     
     #[Column(type: 'string', length: 255)]
-    public string $mot_de_passe;
+    public string $password;
     
     #[Column(type: 'string', length: 100, nullable: true)]
-    public ?string $prenom = null;
+    public ?string $firstname = null;
     
     #[Column(type: 'string', length: 100, nullable: true)]
-    public ?string $nom = null;
+    public ?string $lastname = null;
     
     #[Column(type: 'integer', nullable: true)]
     public ?int $role_id = null;

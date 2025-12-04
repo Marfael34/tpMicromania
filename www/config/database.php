@@ -11,7 +11,7 @@
 
 // Valeurs par défaut uniquement pour les paramètres non sensibles
 $defaults = [
-    'MARIADB_CONTAINER' => 'mariadb_app', // Nom du container Docker (non sensible)
+    'MARIADB_CONTAINER' => 'mariadb_micromania', // Nom du container Docker (non sensible)
     'MARIADB_PORT' => '3306', // Port par défaut MySQL (non sensible)
 ];
 
