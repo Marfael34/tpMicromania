@@ -33,7 +33,7 @@ class Catalogue
      * VARCHAR(255) → maximum 255 caractères
      */
     #[Column(type: "string", length: 255)]
-    public string $titre;
+    public string $title;
 
       /**
      * Chemin vers un fichier média associé (image, etc.)
@@ -61,46 +61,11 @@ class Catalogue
     #[Column(type: "text")]
     public string $description;
 
-    #[Column(type: "decimal", default: 0.00, precision: 10, scale: 2)]
-    public ?float $prix = null;
+    #[Column(type: "decimal", default: 0.00)]
+    public ?float $price = null;
 
     #[Column(type: "integer", default: 0)]
     public ?int $stock;
 
 }
 
-#[Entity(table: "catalogue_genre")]
-class CatalogueGenre
-{
-   #[ManyToMany(targetEntity: Genre::class)]
-   public $genre = [];
-}
-
-#[Entity(table: "genre")]
-class Genre
-{
-   #[Id]
-   #[Column(type: "integer", autoIncrement: true)]
-   public ?int $id = null;
-
-   #[Column(type: "string", length: 100)]
-   public string $label;
-}
-
-#[Entity(table: "catalogue_plateforme")]
-class CataloguePlateforme
-{
-   #[ManyToMany(targetEntity: Plateforme::class)]
-   public $plateforme = [];
-}
-
-#[Entity(table: "plateforme")]
-class Plateforme
-{
-   #[Id]
-   #[Column(type: "integer", autoIncrement: true)]
-   public ?int $id = null;
-
-   #[Column(type: "string", length: 100)]
-   public string $label;
-}

@@ -17,17 +17,21 @@ declare(strict_types=1);
 
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 
+use App\Entity\User;
+use App\Service\EnvValidator;
+use App\Service\BootstrapService;
+use App\Controller\AuthController;
+use App\Controller\HomeController;
+use App\Service\FileUploadService;
+use JulienLinard\Auth\AuthManager;
 use JulienLinard\Core\Application;
+use App\Controller\AdminController;
+use App\Service\EventListenerService;
+use App\Controller\CatalogueController;
+use JulienLinard\Doctrine\EntityManager;
 use JulienLinard\Core\Middleware\CsrfMiddleware;
 use JulienLinard\Validator\Validator as PhpValidator;
 use JulienLinard\Core\Form\Validator as CoreValidator;
-use App\Controller\HomeController;
-use App\Controller\AuthController;
-use App\Service\EnvValidator;
-use App\Service\EventListenerService;
-use App\Service\BootstrapService;
-use JulienLinard\Doctrine\EntityManager;
-use JulienLinard\Auth\AuthManager;
 
 // ============================================
 // ÉTAPE 1 : CRÉATION DE L'APPLICATION
@@ -174,9 +178,10 @@ EventListenerService::register($events, $logger);
 // CONCEPT PÉDAGOGIQUE : Route Attributes (PHP 8)
 // Les routes sont définies directement dans les contrôleurs avec des attributs #[Route]
 // Le router scanne les contrôleurs et enregistre automatiquement les routes
-$router->registerRoutes(HomeController::class);
+$router->registerRoutes(CatalogueController::class);
 $router->registerRoutes(AuthController::class);
 $router->registerRoutes(\App\Controller\AdminController::class);
+
 
 // Démarrer l'application
 $app->start();

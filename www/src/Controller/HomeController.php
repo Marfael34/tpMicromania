@@ -19,27 +19,3 @@ use JulienLinard\Router\Attributes\Route;
 use JulienLinard\Router\Response;
 use JulienLinard\Auth\AuthManager;
 
-class HomeController extends Controller
-{
-    public function __construct(
-        private AuthManager $auth
-    ) {}
-    
-    /**
-     * Route racine : affiche la page d'accueil
-     * 
-     * CONCEPT : Route simple sans middleware
-     */
-    #[Route(path: '/', methods: ['GET'], name: 'home')]
-    public function index(): Response
-    {
-        $user = $this->auth->user();
-        
-        return $this->view('home/index', [
-            'title' => 'Bienvenue sur Micromania',
-            'message' => 'Tous les jeux, sur toute les consoles pour vivre votre passion !',
-            'user' => $user,
-            'isAuthenticated' => $this->auth->check()
-        ]);
-    }
-}

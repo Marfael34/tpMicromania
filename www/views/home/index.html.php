@@ -51,6 +51,17 @@
                 </a>
             </div>
 
+            <?php if ($isAuthenticated ?? false): ?>
+                 <?php if (($user->role ?? 'user') === 'admin'): ?>
+                        <a 
+                            href="/admin" 
+                            class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-150"
+                        >
+                            Back Office
+                        </a>
+                <?php endif; ?>
+            <?php endif; ?>
+                    
             <!-- Panier -->
             <div class="basis-2xs">      
                 <a href="#" aria-label="Mon Panier"
@@ -81,43 +92,65 @@
 
 </header>
 
-<p class="text-4xl text-center font-bold text-gray-800 mb-4 mt-3">Bonjour, <?= htmlspecialchars($user->firstname) ?></p>
-<h1 class="text-3xl text-center font-bold text-gray-800 mb-4 "><?= htmlspecialchars($title ?? 'Welcome') ?></h1>
-<p class="text-xl text-gray-800 mb-6 px-4"><?= htmlspecialchars($message ?? 'Hello World!') ?></p>
+    <h1 class="text-4xl text-center font-bold text-gray-800 mb-4 "><?= htmlspecialchars($title ?? 'Welcome') ?></h1>
+    <p class="text-xl text-gray-800 mb-6 px-4"><?= htmlspecialchars($message ?? 'Hello World!') ?></p>
+    <?php if ($isAuthenticated ?? false): ?>
+        <p class="text-4xl text-center font-bold text-gray-800 mb-4 mt-3">Bonjour, <?= htmlspecialchars($user->firstname) ?></p>
+    <?php endif; ?>
 
 
 <div class="mx-auto max-w-7xl px-5 py-4 bg-gray-100 bg-white">
     <h2 class="text-2xl font-bold text-gray-800 mb-6">Sélection de Jeux</h2>
-
-    <div class="grid grid-cols-1 gap-6 md:grid-cols-3 md:gap-8">
-        <!-- premier jeux -->
-        <div class="bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
-            <div class="p-4">
+    <?php print_r($catalogues, true) ?>
+    <?php if (empty($catalogues)): ?>
+        <p>Aucun jeu n'est actuellement disponible dans le catalogue.</p>
+    <?php else: ?>
+        <div class="grid grid-cols-1 gap-6 md:grid-cols-3 md:gap-8">
+        <?php foreach ($catalogues as $game): ?>
+            <!-- premier jeux -->
+            <div class="bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
                 
-                <div class="flex items-start justify-between mb-4">
+                <div class="p-4">
                     
-                    <div class="w-1/4 flex-shrink-0 mr-4">
-                        <img src="assets/image/r6.jpg" alt="Boîte de jeu Rainbow Six Siège PS5" class="w-full h-auto object-cover rounded">
+                    <div class="flex items-start justify-between mb-4">
+                        <?php if (!empty($game['media'])): ?>
+                            <div class="w-1/4 flex-shrink-0 mr-4">
+                                <img src="assets/image/<?= $game['media'][0]->getFilename(); ?>" alt="Boîte de jeu Rainbow Six Siège PS5" class="w-full h-auto object-cover rounded">
+                            </div>
+                        <?php endif; ?>
+
+                        <div class="flex-grow">
+                            <h3 class="text-lg font-semibold text-gray-800 leading-tight">
+                                 <?= htmlspecialchars($game['title']); ?>
+                            </h3>
+                            <?php foreach ($game['plateformes'] as $plat): ?>
+                                <p class="text-sm text-gray-500 mt-1"><?= htmlspecialchars($plat);?></p>
+                            <?php endforeach; ?>
+                            <div class="text-lg font-semibold text-gray-800 leading-tight">
+                                 <?= htmlspecialchars($game['description']); ?>
+                            </div>
+                             <?php if ($game['stock'] > 0): ?>
+                                <span class="text-sm bg-green-600 px-3 py-1 rounded-full">
+                                    En stock (<?= $game['stock']; ?>)
+                                </span>
+                            <?php else: ?>
+                                <span class="text-sm bg-red-600 px-3 py-1 rounded-full">
+                                    Rupture
+                                </span>
+                            <?php endif; ?>
+
+                        </div>
+
+                        <button class="text-gray-400 hover:text-red-500 transition-colors duration-200 p-1 flex-shrink-0" aria-label="Ajouter aux favoris">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /><!-- penser a changer les svg par ceux que j'ai choisi -->
+                            </svg>
+                        </button>
                     </div>
-
-                    <div class="flex-grow">
-                        <h3 class="text-lg font-semibold text-gray-800 leading-tight">
-                            Rainbow Six Siège PS5
-                        </h3>
-                        <p class="text-sm text-gray-500 mt-1">Plateforme : PS5</p>
-                    </div>
-
-                    <button class="text-gray-400 hover:text-red-500 transition-colors duration-200 p-1 flex-shrink-0" aria-label="Ajouter aux favoris">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /><!-- penser a changer les svg par ceux que j'ai choisi -->
-                        </svg>
-                    </button>
-                </div>
-
-                <div class="flex justify-end mb-4">
-                    <span class="text-2xl font-bold text-red-600">39,99 €</span>
-                </div>
-
+                        <div class="flex justify-end mb-4">
+                            <span class="text-2xl font-bold text-red-600"><?= number_format($game['price'], 2); ?> €</span>
+                        </div>
+        <?php endforeach; ?>
                 <div class="flex justify-between items-center gap-2">
                     <button class="w-1/2 py-2 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 transition-colors duration-200 uppercase text-xs sm:text-sm" aria-label="Ajouter Rainbow Six Siège au panier">
                         🛒 Ajouter
@@ -128,122 +161,6 @@
                 </div>
             </div>
         </div>
-        <!-- deuxième jeux -->
-        <div class="bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
-            <div class="p-4">
-                
-                <div class="flex items-start justify-between mb-4">
-                    
-                    <div class="w-1/4 flex-shrink-0 mr-4">
-                        <img src="assets/image/r6.jpg" alt="Boîte de jeu Rainbow Six Siège PS5" class="w-full h-auto object-cover rounded">
-                    </div>
-
-                    <div class="flex-grow">
-                        <h3 class="text-lg font-semibold text-gray-800 leading-tight">
-                            Jeu de la Mort Subite
-                        </h3>
-                        <p class="text-sm text-gray-500 mt-1">Plateforme : XBOX</p>
-                    </div>
-
-                    <button class="text-gray-400 hover:text-red-500 transition-colors duration-200 p-1 flex-shrink-0" aria-label="Ajouter aux favoris">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                        </svg>
-                    </button>
-                </div>
-
-                <div class="flex justify-end mb-4">
-                    <span class="text-2xl font-bold text-red-600">59,99 €</span>
-                </div>
-
-                <div class="flex justify-between items-center gap-2">
-                    <button class="w-1/2 py-2 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 transition-colors duration-200 uppercase text-xs sm:text-sm" aria-label="Ajouter Jeu de la Mort Subite au panier">
-                        🛒 Ajouter
-                    </button>
-                    <button class="w-1/2 py-2 bg-gray-200 text-gray-800 font-bold rounded-md hover:bg-gray-300 transition-colors duration-200 uppercase text-xs sm:text-sm" aria-label="Voir la fiche produit de Jeu de la Mort Subite">
-                        🔍 Voir produit
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
-            <div class="p-4">
-                
-                <div class="flex items-start justify-between mb-4">
-                    
-                    <div class="w-1/4 flex-shrink-0 mr-4">
-                        <img src="assets/image/r6.jpg" alt="Boîte de jeu Rainbow Six Siège PS5" class="w-full h-auto object-cover rounded">
-                    </div>
-
-                    <div class="flex-grow">
-                        <h3 class="text-lg font-semibold text-gray-800 leading-tight">
-                            Aventure Fantastique
-                        </h3>
-                        <p class="text-sm text-gray-500 mt-1">Plateforme : Switch</p>
-                    </div>
-
-                    <button class="text-gray-400 hover:text-red-500 transition-colors duration-200 p-1 flex-shrink-0" aria-label="Ajouter aux favoris">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                        </svg>
-                    </button>
-                </div>
-
-                <div class="flex justify-end mb-4">
-                    <span class="text-2xl font-bold text-red-600">29,99 €</span>
-                </div>
-
-                <div class="flex justify-between items-center gap-2">
-                    <button class="w-1/2 py-2 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 transition-colors duration-200 uppercase text-xs sm:text-sm" aria-label="Ajouter Aventure Fantastique au panier">
-                        🛒 Ajouter
-                    </button>
-                    <button class="w-1/2 py-2 bg-gray-200 text-gray-800 font-bold rounded-md hover:bg-gray-300 transition-colors duration-200 uppercase text-xs sm:text-sm" aria-label="Voir la fiche produit de Aventure Fantastique">
-                        🔍 Voir produit
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
-            <div class="p-4">
-                
-                <div class="flex items-start justify-between mb-4">
-                    
-                    <div class="w-1/4 flex-shrink-0 mr-4">
-                        <img src="assets/image/r6.jpg" alt="Boîte de jeu Rainbow Six Siège PS5" class="w-full h-auto object-cover rounded">
-                    </div>
-
-                    <div class="flex-grow">
-                        <h3 class="text-lg font-semibold text-gray-800 leading-tight">
-                            Aventure Fantastique
-                        </h3>
-                        <p class="text-sm text-gray-500 mt-1">Plateforme : Switch</p>
-                    </div>
-
-                    <button class="text-gray-400 hover:text-red-500 transition-colors duration-200 p-1 flex-shrink-0" aria-label="Ajouter aux favoris">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                        </svg>
-                    </button>
-                </div>
-
-                <div class="flex justify-end mb-4">
-                    <span class="text-2xl font-bold text-red-600">29,99 €</span>
-                </div>
-
-                <div class="flex justify-between items-center gap-2">
-                    <button class="w-1/2 py-2 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 transition-colors duration-200 uppercase text-xs sm:text-sm" aria-label="Ajouter Aventure Fantastique au panier">
-                        🛒 Ajouter
-                    </button>
-                    <button class="w-1/2 py-2 bg-gray-200 text-gray-800 font-bold rounded-md hover:bg-gray-300 transition-colors duration-200 uppercase text-xs sm:text-sm" aria-label="Voir la fiche produit de Aventure Fantastique">
-                        🔍 Voir produit
-                    </button>
-                </div>
-            </div>
-        </div>
-        
+    <?php endif; ?>
     </div>
 </div>
-
-   
