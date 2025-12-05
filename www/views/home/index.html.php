@@ -51,16 +51,7 @@
                 </a>
             </div>
 
-            <?php if ($isAuthenticated ?? false): ?>
-                 <?php if (($user->role ?? 'user') === 'admin'): ?>
-                        <a 
-                            href="/admin" 
-                            class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-150"
-                        >
-                            Back Office
-                        </a>
-                <?php endif; ?>
-            <?php endif; ?>
+            
                     
             <!-- Panier -->
             <div class="basis-2xs">      
@@ -72,17 +63,26 @@
                     </svg>
                 </a>
             </div>
-           
+            <?php if (($user->role ?? 'user') === 'admin'): ?>
+                <a 
+                    href="/admin" 
+                    class="bg-indigo-600 px-4 py-2 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-150"
+                    >   
+                        Back Office
+                    </a>
+            <?php endif; ?>
+           <?php use JulienLinard\Core\View\ViewHelper; ?>
             <!-- Déconexion -->
-            <div class="basis-2xs ">
-                <form action="/logout" method="POST" onsubmit="return confirm('Etes vous sur de vouloir vous déconnecter ?')">
-                    <?php use JulienLinard\Core\View\ViewHelper; ?>
-                    <input type="hidden" name="_token" value="<?= htmlspecialchars(ViewHelper::csrfToken()) ?>">             <button type="submit" class="text-sm text-white  hover:text-gray-900 transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24">
-                            <path fill="currentColor" d="M5 21q-.825 0-1.412-.587T3 19V5q0-.825.588-1.412T5 3h7v2H5v14h7v2zm11-4l-1.375-1.45l2.55-2.55H9v-2h8.175l-2.55-2.55L16 7l5 5z"/></svg>
-                    </button>
-                </form>
-            </div>
+             <?php if ($isAuthenticated ?? false): ?>
+                <div class="basis-2xs ">
+                    <form action="/logout" method="POST" onsubmit="return confirm('Etes vous sur de vouloir vous déconnecter ?')">
+                        <input type="hidden" name="_token" value="<?= htmlspecialchars(ViewHelper::csrfToken()) ?>">             <button type="submit" class="text-sm text-white  hover:text-gray-900 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24">
+                                <path fill="currentColor" d="M5 21q-.825 0-1.412-.587T3 19V5q0-.825.588-1.412T5 3h7v2H5v14h7v2zm11-4l-1.375-1.45l2.55-2.55H9v-2h8.175l-2.55-2.55L16 7l5 5z"/></svg>
+                        </button>
+                    </form>
+                </div>
+            <?php endif?>
             
          </div>
             
@@ -99,68 +99,88 @@
     <?php endif; ?>
 
 
+
 <div class="mx-auto max-w-7xl px-5 py-4 bg-gray-100 bg-white">
     <h2 class="text-2xl font-bold text-gray-800 mb-6">Sélection de Jeux</h2>
-    <?php print_r($catalogues, true) ?>
     <?php if (empty($catalogues)): ?>
         <p>Aucun jeu n'est actuellement disponible dans le catalogue.</p>
     <?php else: ?>
-        <div class="grid grid-cols-1 gap-6 md:grid-cols-3 md:gap-8">
-        <?php foreach ($catalogues as $game): ?>
-            <!-- premier jeux -->
-            <div class="bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
-                
-                <div class="p-4">
+        <div class="grid grid-cols-1  md:grid-cols-3 gap-6  md:gap-8">
+            <?php foreach ($catalogues as $game): ?>
+                <div>
+                    <div class="bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
                     
-                    <div class="flex items-start justify-between mb-4">
-                        <?php if (!empty($game['media'])): ?>
-                            <div class="w-1/4 flex-shrink-0 mr-4">
-                                <img src="assets/image/<?= $game['media'][0]->getFilename(); ?>" alt="Boîte de jeu Rainbow Six Siège PS5" class="w-full h-auto object-cover rounded">
-                            </div>
-                        <?php endif; ?>
+                        <div class="p-4">
+                            
+                            <?php
+                                // Supporte à la fois le format Array ($room['...']) et Objet ($room->...)
+                                $mediaPath = $game['media_path'] ?? null;
+                            ?>
+                            
+                            <div class="flex items-start justify-between mb-4">
+                                <?php if ($mediaPath != null): ?>
+                                    <img src="<?= htmlspecialchars($mediaPath) ?>"
+                                        alt="<?= htmlspecialchars($title) ?>"
+                                        class="w-1/4 flex-shrink-0 mr-4">
+                                <?php else: ?>
+                                    <div class="flex items-center justify-center h-full text-gray-400">
+                                        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                            </path>
+                                        </svg>
+                                    </div>
+                                <?php endif; ?>
 
-                        <div class="flex-grow">
-                            <h3 class="text-lg font-semibold text-gray-800 leading-tight">
-                                 <?= htmlspecialchars($game['title']); ?>
-                            </h3>
-                            <?php foreach ($game['plateformes'] as $plat): ?>
-                                <p class="text-sm text-gray-500 mt-1"><?= htmlspecialchars($plat);?></p>
-                            <?php endforeach; ?>
-                            <div class="text-lg font-semibold text-gray-800 leading-tight">
-                                 <?= htmlspecialchars($game['description']); ?>
-                            </div>
-                             <?php if ($game['stock'] > 0): ?>
-                                <span class="text-sm bg-green-600 px-3 py-1 rounded-full">
-                                    En stock (<?= $game['stock']; ?>)
-                                </span>
-                            <?php else: ?>
-                                <span class="text-sm bg-red-600 px-3 py-1 rounded-full">
-                                    Rupture
-                                </span>
-                            <?php endif; ?>
+                                <div class="flex-grow">
+                                    <h3 class="text-lg font-semibold text-gray-800 leading-tight">
+                                        <?= htmlspecialchars($game['title']); ?>
+                                    </h3>
+                                    <?php foreach ($game['plateformes'] as $plat): ?>
+                                        <p class="text-sm text-gray-500 mt-1"><?= htmlspecialchars($plat);?></p>
+                                    <?php endforeach; ?>
+                                    <div class="text-xs  text-gray-800 leading-tight">
+                                        <?= htmlspecialchars($game['description']); ?>
+                                    </div>
+                                    <?php if ($game['stock'] > 0): ?>
+                                        <span class="text-sm bg-green-600 px-3 py-1 rounded-full">
+                                            En stock (<?= $game['stock']; ?>)
+                                        </span>
+                                    <?php else: ?>
+                                        <span class="text-sm bg-red-600 px-3 py-1 rounded-full">
+                                            Rupture
+                                        </span>
+                                    <?php endif; ?>
 
+                                </div>
+
+                                <button class="text-gray-400 hover:text-red-500 transition-colors duration-200 p-1 flex-shrink-0" aria-label="Ajouter aux favoris">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /><!-- penser a changer les svg par ceux que j'ai choisi -->
+                                    </svg>
+                                </button>
+                            </div>
+                                <div class="flex justify-end mb-4">
+                                    <span class="text-2xl font-bold text-red-600"><?= number_format($game['price'], 2); ?> €</span>
+                                </div>
+                
+                        <div class="flex justify-between items-center gap-2">
+                            <button class="w-1/2 py-2 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 transition-colors duration-200 uppercase text-xs sm:text-sm" aria-label="Ajouter Rainbow Six Siège au panier">
+                                🛒 Ajouter
+                            </button>
+                            <button class="w-1/2 py-2 bg-gray-200 text-gray-800 font-bold rounded-md hover:bg-gray-300 transition-colors duration-200 uppercase text-xs sm:text-sm" aria-label="Voir la fiche produit de Rainbow Six Siège">
+                                🔍 Voir produit
+                            </button>
                         </div>
-
-                        <button class="text-gray-400 hover:text-red-500 transition-colors duration-200 p-1 flex-shrink-0" aria-label="Ajouter aux favoris">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /><!-- penser a changer les svg par ceux que j'ai choisi -->
-                            </svg>
-                        </button>
                     </div>
-                        <div class="flex justify-end mb-4">
-                            <span class="text-2xl font-bold text-red-600"><?= number_format($game['price'], 2); ?> €</span>
-                        </div>
-        <?php endforeach; ?>
-                <div class="flex justify-between items-center gap-2">
-                    <button class="w-1/2 py-2 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 transition-colors duration-200 uppercase text-xs sm:text-sm" aria-label="Ajouter Rainbow Six Siège au panier">
-                        🛒 Ajouter
-                    </button>
-                    <button class="w-1/2 py-2 bg-gray-200 text-gray-800 font-bold rounded-md hover:bg-gray-300 transition-colors duration-200 uppercase text-xs sm:text-sm" aria-label="Voir la fiche produit de Rainbow Six Siège">
-                        🔍 Voir produit
-                    </button>
                 </div>
             </div>
-        </div>
+        
+        <?php endforeach; ?>
     <?php endif; ?>
     </div>
 </div>
+<div>
+    
+</div>
+    

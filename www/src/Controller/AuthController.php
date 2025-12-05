@@ -183,7 +183,7 @@ class AuthController extends Controller
             $user->password = password_hash($password, PASSWORD_BCRYPT);
             $user->firstname = $firstname;
             $user->lastname = $lastname;
-            $user->role_id = 1;
+            $user->role = 'user';
             
             $this->em->persist($user);
             $this->em->flush();

@@ -15,4 +15,16 @@ class Plateforme
 
    #[Column(type: "string", length: 100)]
    public string $label;
+
+   public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getLabel(): ?string
+    {
+        return $this->label; 
+        // ou return $this->nom; selon comment tu as appelé ta colonne dans la BDD
+    }
+        
 }

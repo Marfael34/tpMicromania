@@ -67,5 +67,52 @@ class Catalogue
     #[Column(type: "integer", default: 0)]
     public ?int $stock;
 
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    // --- LES SETTERS (Pour écrire/modifier) ---
+
+    // C'est celle-ci qui te manque pour l'erreur actuelle
+    public function setTitle(string $title): self
+    {
+        $this->title = $title;
+        return $this; // Permet de chaîner les méthodes
+    }
+
+    public function setDescription(?string $description): self
+    {
+        $this->description = $description;
+        return $this;
+    }
+
+    public function setPrice(float $price): self
+    {
+        $this->price = $price;
+        return $this;
+    }
+
+    public function setStock(int $stock): self
+    {
+        $this->stock = $stock;
+        return $this;
+    }
+
+    // Attention : Vérifie le nom de ta colonne en base (media_path ou image ?)
+    public function setMediaPath(?string $path): self
+    {
+        $this->media_path = $path; // ou $this->image = $path;
+        return $this;
+    }
+
+    public array $genre = [];
+    public array $plateforme = [];
+
 }
 

@@ -4,8 +4,7 @@
  * ============================================
  * ADMIN CONTROLLER
  * ============================================
- * 
- * Contrôleur pour le back office administrateur
+ * * Contrôleur pour le back office administrateur
  * Accessible uniquement aux utilisateurs avec le rôle 'admin'
  */
 
@@ -13,19 +12,18 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use JulienLinard\Core\Controller\Controller;
-use JulienLinard\Router\Attributes\Route;
-use JulienLinard\Router\Request;
-use JulienLinard\Router\Response;
+use App\Entity\User;
+use App\Entity\Catalogue;
+use App\Repository\UserRepository;
 use JulienLinard\Auth\AuthManager;
+use App\Repository\CatalogueRepository;
+use JulienLinard\Router\Response;
+use JulienLinard\Doctrine\EntityManager;
+use JulienLinard\Router\Attributes\Route;
+use JulienLinard\Core\Controller\Controller;
 use JulienLinard\Auth\Middleware\AuthMiddleware;
 use JulienLinard\Auth\Middleware\RoleMiddleware;
-use JulienLinard\Doctrine\EntityManager;
-use JulienLinard\Core\Session\Session;
-use App\Repository\TodoRepository;
-use App\Repository\UserRepository;
-use App\Entity\Todo;
-use App\Entity\User;
+use JulienLinard\Core\View\ViewHelper; // Assure-toi d'importer ceci si tu l'utilises
 
 class AdminController extends Controller
 {
@@ -44,56 +42,50 @@ class AdminController extends Controller
     #[Route(path: '/admin', methods: ['GET'], name: 'admin.dashboard', middleware: [new AuthMiddleware('/login'), new RoleMiddleware('admin', '/')])]
     public function dashboard(): Response
     {
-        $user = $this->auth->user();
-        if (!$user) {
-            return $this->redirect('/login');
-        }
-
         // Statistiques globales
-        $todoRepo = $this->em->createRepository(TodoRepository::class, Todo::class);
+        $catalogueRepo = $this->em->createRepository(CatalogueRepository::class, Catalogue::class);
         $userRepo = $this->em->createRepository(UserRepository::class, User::class);
 
         $stats = [
-            'total_todos' => count($todoRepo->findAll()),
-            'completed_todos' => count($todoRepo->findBy(['completed' => true])),
-            'pending_todos' => count($todoRepo->findBy(['completed' => false])),
+            'total_items' => count($catalogueRepo->findAll()), // Nombre total d'articles
             'total_users' => count($userRepo->findAll()),
             'admin_users' => count($userRepo->findBy(['role' => 'admin'])),
         ];
 
         return $this->view('admin/dashboard', [
             'title' => 'Dashboard Admin',
-            'stats' => $stats
+            'stats' => $stats,
+            'user'  => $this->auth->user()
         ]);
     }
 
     /**
-     * Liste tous les todos
+     * Liste tous les éléments du catalogue
      */
-    #[Route(path: '/admin/todos', methods: ['GET'], name: 'admin.todos', middleware: [new AuthMiddleware('/login'), new RoleMiddleware('admin', '/')])]
-    public function todos(): Response
+    #[Route(path: '/admin/catalogue', methods: ['GET'], name: 'admin.catalogue', middleware: [new AuthMiddleware('/login'), new RoleMiddleware('admin', '/')])]
+    public function catalogue(): Response
     {
-        $user = $this->auth->user();
-        if (!$user) {
-            return $this->redirect('/login');
-        }
+        $catalogueRepo = $this->em->createRepository(CatalogueRepository::class, Catalogue::class);
+        $items = $catalogueRepo->findAll();
 
-        $todoRepo = $this->em->createRepository(TodoRepository::class, Todo::class);
-        $todos = $todoRepo->findAll();
+        // Charger les relations (Media, User) pour chaque item
+        foreach ($items as $item) {
+            // Si ta méthode s'appelle loadMediaRelations dans CatalogueRepository
+            if (method_exists($catalogueRepo, 'loadMediaRelations')) {
+                $catalogueRepo->loadMediaRelations($item);
+            }
 
-        // Charger les médias et les utilisateurs pour chaque todo
-        foreach ($todos as $todo) {
-            $todoRepo->loadMediaRelations($todo);
-            // Charger l'utilisateur si nécessaire
-            if ($todo->userId !== null) {
+            // Charger l'utilisateur créateur si nécessaire
+            if (isset($item->userId) && $item->userId !== null) {
                 $userRepo = $this->em->createRepository(UserRepository::class, User::class);
-                $todo->user = $userRepo->find($todo->userId);
+                $item->user = $userRepo->find($item->userId);
             }
         }
 
-        return $this->view('admin/todos', [
-            'title' => 'Gestion des Todos',
-            'todos' => $todos
+        return $this->view('admin/catalogue', [
+            'title' => 'Gestion du Catalogue',
+            'items' => $items, 
+            'user'  => $this->auth->user()
         ]);
     }
 
@@ -103,28 +95,60 @@ class AdminController extends Controller
     #[Route(path: '/admin/users', methods: ['GET'], name: 'admin.users', middleware: [new AuthMiddleware('/login'), new RoleMiddleware('admin', '/')])]
     public function users(): Response
     {
-        $user = $this->auth->user();
-        if (!$user) {
-            return $this->redirect('/login');
-        }
-
         $userRepo = $this->em->createRepository(UserRepository::class, User::class);
         $users = $userRepo->findAll();
 
-        // Compter les todos pour chaque utilisateur et créer un tableau enrichi
-        $todoRepo = $this->em->createRepository(TodoRepository::class, Todo::class);
+        // Compter les articles du catalogue pour chaque utilisateur
+        $catalogueRepo = $this->em->createRepository(CatalogueRepository::class, Catalogue::class);
         $usersWithStats = [];
         
         foreach ($users as $user) {
+            // Attention : Vérifie bien le nom de la colonne dans ta BDD (user_id ou userId)
+            $userItems = $catalogueRepo->findBy(['user_id' => $user->id]);
+            
             $usersWithStats[] = [
                 'user' => $user,
-                'todos_count' => count($todoRepo->findBy(['user_id' => $user->id]))
+                'items_count' => count($userItems)
             ];
         }
 
         return $this->view('admin/users', [
             'title' => 'Gestion des Utilisateurs',
-            'users' => $usersWithStats
+            'users' => $usersWithStats,
+            'connected_user' => $this->auth->user()
+        ]);
+    }
+
+    /**
+     * Page de création d'un nouvel élément (Accès Admin)
+     */
+    #[Route(path: "/admin/catalogue/create", name: "admin.catalogue.create", methods: ["GET"], middleware: [new AuthMiddleware('/login'), new RoleMiddleware('admin', '/')])]
+    public function createForm(): Response
+    {
+        // Utilisation de ViewHelper::csrfToken() suppose que tu as cette classe importée
+        $csrfToken = class_exists(ViewHelper::class) ? ViewHelper::csrfToken() : $_SESSION['csrf_token'] ?? '';
+
+        $plateformes = $this->em->getRepository(\App\Entity\Plateforme::class)->findAll();
+        $genres = $this->em->getRepository(\App\Entity\Genre::class)->findAll();
+
+        return $this->view("admin/create_catalogue", [
+            "csrf_token" => $csrfToken,
+            "user" => $this->auth->user(),
+            "title" => "Ajouter un article",
+            "plateformes" => $plateformes, // On passe la variable à la vue
+            "genres" => $genres
+        ]);
+    }
+    public function create(): Response
+    {
+        // On récupère toutes les plateformes (et les genres)
+        $plateformes = $this->em->getRepository(\App\Entity\Plateforme::class)->findAll();
+        $genres = $this->em->getRepository(\App\Entity\Genre::class)->findAll();
+
+        return $this->view('admin/create_catalogue', [
+            'title' => 'Ajouter un jeu',
+            'plateformes' => $plateformes, // On passe la variable à la vue
+            'genres' => $genres
         ]);
     }
 }

@@ -44,9 +44,7 @@ class User implements UserInterface
     #[Column(type: 'string', length: 100, nullable: true)]
     public ?string $lastname = null;
     
-    #[Column(type: 'integer', nullable: true)]
-    public ?int $role_id = null;
+    #[Column(type: 'string', length:10)]
+    public ?string $role = null;
 
-    #[ManyToOne(targetEntity: Role::class, inversedBy: 'role')]
-    public ?Role $role = null;
 }
