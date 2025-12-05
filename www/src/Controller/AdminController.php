@@ -14,16 +14,19 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Entity\Catalogue;
+use JulienLinard\Router\Request;
+use JulienLinard\Router\Response;
 use App\Repository\UserRepository;
 use JulienLinard\Auth\AuthManager;
+use JulienLinard\Core\Session\Session;
 use App\Repository\CatalogueRepository;
-use JulienLinard\Router\Response;
 use JulienLinard\Doctrine\EntityManager;
 use JulienLinard\Router\Attributes\Route;
 use JulienLinard\Core\Controller\Controller;
 use JulienLinard\Auth\Middleware\AuthMiddleware;
 use JulienLinard\Auth\Middleware\RoleMiddleware;
 use JulienLinard\Core\View\ViewHelper; // Assure-toi d'importer ceci si tu l'utilises
+
 
 class AdminController extends Controller
 {
@@ -151,4 +154,40 @@ class AdminController extends Controller
             'genres' => $genres
         ]);
     }
+
+    #[Route(path: '/admin/catalogue/edit', methods: ['GET'], name: 'admin.edit', middleware: [new AuthMiddleware('/login'), new RoleMiddleware('admin', '/')])]
+    public function edit(Request $request): Response
+    {
+        // 1. Récupérer l'ID depuis l'URL (ex: ?id=12)
+        $id = $request->getQueryParam('id');
+
+        if (!$id) {
+            Session::flash('error', 'Identifiant du jeu manquant.');
+            return $this->redirect('/admin/catalogue');
+        }
+
+        // 2. Initialiser le repository
+        $catalogueRepo = $this->em->createRepository(CatalogueRepository::class, Catalogue::class);
+        
+        // 3. Récupérer LE jeu spécifique (objet)
+        $catalogue = $catalogueRepo->findById((int)$id);
+        
+        if (!$catalogue) {
+            Session::flash('error', 'Jeu introuvable.');
+            return $this->redirect('/admin/catalogue');
+        }
+
+        // 4. Récupérer les listes pour les checkbox
+        $plateformes = $this->em->getRepository(\App\Entity\Plateforme::class)->findAll();
+        $genres = $this->em->getRepository(\App\Entity\Genre::class)->findAll();
+        
+        // 5. Envoyer à la vue
+        return $this->view('admin/edit', [
+            'title' => 'Modifier le jeu',
+            'catalogue' => $catalogue,     // C'est maintenant un Objet unique
+            'plateformes' => $plateformes, // Nécessaire pour afficher les choix
+            'genres' => $genres,           // Nécessaire pour afficher les choix
+            'errors' => []
+        ]);
+    }    
 }
