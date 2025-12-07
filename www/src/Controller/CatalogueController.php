@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Entity\Genre;
 use App\Entity\Catalogue;
+use App\Entity\Plateforme;
 use JulienLinard\Router\Request;
 use JulienLinard\Router\Response;
 use App\Middleware\AuthMiddleware;
@@ -15,7 +17,7 @@ use App\Repository\CatalogueRepository;
 use JulienLinard\Doctrine\EntityManager;
 use JulienLinard\Router\Attributes\Route;
 use JulienLinard\Core\Controller\Controller;
-
+use JulienLinard\Router\Middlewares\RoleMiddleware;
 
 class CatalogueController extends Controller
 {
@@ -160,6 +162,7 @@ class CatalogueController extends Controller
             ]);
         }
     } 
+    
         /**
      * Gère l'upload d'une image de manière propre et sécurisée.
      * Retourne soit le chemin final du fichier, soit null.

@@ -13,7 +13,9 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Entity\Genre;
 use App\Entity\Catalogue;
+use App\Entity\Plateforme;
 use JulienLinard\Router\Request;
 use JulienLinard\Router\Response;
 use App\Repository\UserRepository;
@@ -190,4 +192,114 @@ class AdminController extends Controller
             'errors' => []
         ]);
     }    
+
+    #[Route(path: '/admin/catalogue/update', methods: ['POST'], name: 'admin.catalogue.update', middleware: [new AuthMiddleware('/login'), new RoleMiddleware('admin', '/')])]
+    public function update(Request $request): Response
+    {
+        // 1. Récupération de l'ID via POST (formulaire)
+        $id = $request->getPost('id'); // REMPLACÉ: getBodyParam -> getPost
+        
+        if (!$id) {
+            Session::flash('error', 'Identifiant du jeu manquant.');
+            return $this->redirect('/admin/catalogue');
+        }
+
+        // 2. Récupération du jeu
+        /** @var CatalogueRepository $catalogueRepo */
+        $catalogueRepo = $this->em->createRepository(CatalogueRepository::class, Catalogue::class);
+        $catalogue = $catalogueRepo->findById((int)$id);
+
+        if (!$catalogue) {
+            Session::flash('error', 'Jeu introuvable.');
+            return $this->redirect('/admin/catalogue');
+        }
+
+        $this->em->persist($catalogue);
+
+        // 3. Récupération des données du formulaire
+        $title = trim($request->getPost('title') ?? '');
+        $description = trim($request->getPost('description') ?? '');
+        $price = (int) ($request->getPost('price') ?? 0);
+        $stock = (int) ($request->getPost('stock') ?? 0);
+        
+        // Récupération des relations (checkboxes)
+        $genreIds = $request->getPost('genres') ?? [];
+        $plateformeIds = $request->getPost('plateformes') ?? [];
+
+        // 4. Validation
+        $errors = [];
+        if (empty($title)) {
+            $errors['title'] = 'Le titre est requis';
+        } elseif (strlen($title) > 255) {
+            $errors['title'] = 'Le titre ne doit pas dépasser 255 caractères';
+        }
+
+        // En cas d'erreur, on réaffiche le formulaire
+        if (!empty($errors)) {
+            Session::flash('error', 'Veuillez corriger les erreurs.');
+            // On doit recharger les listes pour la vue
+            $plateformes = $this->em->getRepository(Plateforme::class)->findAll();
+            $genres = $this->em->getRepository(Genre::class)->findAll();
+            // On recharge les relations actuelles pour ne pas perdre les cases cochées
+            $catalogueRepo->loadRelations($catalogue);
+
+            return $this->view('admin/edit', [
+                'title' => 'Modifier le jeu',
+                'catalogue' => $catalogue,
+                'plateformes' => $plateformes,
+                'genres' => $genres,
+                'errors' => $errors
+            ]);
+        }
+
+        try {
+            // 5. Mise à jour des champs scalaires
+            $catalogue->setTitle($title)
+                      ->setDescription($description ?: null)
+                      ->setPrice($price)
+                      ->setStock($stock);
+
+            // 6. Gestion de l'upload d'image (remplacement)
+            // On vérifie si un fichier a été envoyé via $_FILES
+            if (isset($_FILES['media']) && $_FILES['media']['error'] !== UPLOAD_ERR_NO_FILE) {
+                
+                // Upload du nouveau fichier
+                $result = $this->fileUpload->upload($_FILES['media']);
+
+                if ($result->isSuccess()) {
+                    $data = $result->getData();
+                    $newFilename = $data['path']; // '/uploads/media_xyz.jpg'
+
+                    // Suppression de l'ancien fichier s'il existe et n'est pas vide
+                    if ($catalogue->media_path) {
+                        // FileUploadService->delete attend juste le nom du fichier, on utilise basename
+                        $oldFilename = basename($catalogue->media_path);
+                        $this->fileUpload->delete($oldFilename);
+                    }
+
+                    // Mise à jour de l'entité
+                    $catalogue->setMediaPath($newFilename);
+                } else {
+                    // Erreur d'upload
+                    Session::flash('error', 'Erreur upload : ' . $result->getError());
+                    return $this->redirect("/admin/catalogue/edit?id={$id}");
+                }
+            }
+
+            // 7. Persistance des changements sur l'entité Catalogue
+            $this->em->persist($catalogue);
+            $this->em->flush();
+
+            // 8. Sauvegarde des relations Many-to-Many (Genres et Plateformes)
+            // Utilisation de la méthode créée dans CatalogueRepository
+            $catalogueRepo->saveManyToManyRelations($catalogue->getId(), $genreIds, $plateformeIds);
+
+            Session::flash('success', 'Jeu modifié avec succès !');
+            return $this->redirect('/admin/catalogue');
+
+        } catch (\Exception $e) {
+            Session::flash('error', 'Une erreur est survenue : ' . $e->getMessage());
+            return $this->redirect("/admin/catalogue/edit?id={$id}");
+        }
+    }
 }
