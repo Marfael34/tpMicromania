@@ -133,8 +133,8 @@ class AdminController extends Controller
         // Utilisation de ViewHelper::csrfToken() suppose que tu as cette classe importée
         $csrfToken = class_exists(ViewHelper::class) ? ViewHelper::csrfToken() : $_SESSION['csrf_token'] ?? '';
 
-        $plateformes = $this->em->getRepository(\App\Entity\Plateforme::class)->findAll();
-        $genres = $this->em->getRepository(\App\Entity\Genre::class)->findAll();
+        $plateformes = $this->em->getRepository(Plateforme::class)->findAll();
+        $genres = $this->em->getRepository(Genre::class)->findAll();
 
         return $this->view("admin/create_catalogue", [
             "csrf_token" => $csrfToken,
@@ -301,5 +301,36 @@ class AdminController extends Controller
             Session::flash('error', 'Une erreur est survenue : ' . $e->getMessage());
             return $this->redirect("/admin/catalogue/edit?id={$id}");
         }
+    }
+
+     #[Route(path: '/amin/{id}/delete', methods: ['POST'], name: 'admin.delete', middleware: [new AuthMiddleware()])]
+    public function delete(int $id): Response
+    {
+        $user = $this->auth->user();
+        if (!$user) {
+            return $this->redirect('/login');
+        }
+        
+        $catalogueRepo = $this->em->createRepository(CatalogueRepository::class, Catalogue::class);
+        $catalogue = $catalogueRepo->findByIdAndUser($id, $user->getAuthIdentifier());
+        
+        if (!$catalogue) {
+            Session::flash('error', 'jeux introuvable');
+            return $this->redirect('/catalogue');
+        }
+        
+        try {
+            // Supprimer les médias associés (optionnel - vous pouvez garder les médias)
+            // Pour cet exemple, on ne supprime pas les médias, juste la relation
+            
+            $this->em->remove($catalogue);
+            $this->em->flush();
+            
+            Session::flash('success', 'Jeux supprimé avec succès !');
+        } catch (\Exception $e) {
+            Session::flash('error', 'Une erreur est survenue lors de la suppression du jeux');
+        }
+        
+        return $this->redirect('/catalogue');
     }
 }

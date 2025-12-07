@@ -40,7 +40,7 @@ if (!isset($catalogue) || !$catalogue) {
             <form method="POST" action="/admin/catalogue/update" enctype="multipart/form-data" class="space-y-6">
                 
                 <?= \JulienLinard\Core\Middleware\CsrfMiddleware::field() ?>
-
+                
                 <input type="hidden" name="id" value="<?= $catalogue->getId() ?>">
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
