@@ -2,6 +2,7 @@
 // views/admin/edit.html.php
 
 use JulienLinard\Core\Session\Session;
+use JulienLinard\Core\View\ViewHelper;
 
 // Récupération des messages flash (si nécessaire, ou géré par le layout parent)
 $errors = $errors ?? [];
@@ -39,7 +40,7 @@ if (!isset($catalogue) || !$catalogue) {
 
             <form method="POST" action="/admin/catalogue/update" enctype="multipart/form-data" class="space-y-6">
                 
-                <?= \JulienLinard\Core\Middleware\CsrfMiddleware::field() ?>
+               <?= ViewHelper::csrfField() ?>
                 
                 <input type="hidden" name="id" value="<?= $catalogue->getId() ?>">
 

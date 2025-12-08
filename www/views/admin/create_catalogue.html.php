@@ -1,5 +1,6 @@
 <?php
 use JulienLinard\Core\Session\Session;
+use JulienLinard\Core\View\ViewHelper;
 
 // Récupération des messages flash
 $successMessage = Session::get('success');
@@ -53,7 +54,7 @@ Session::remove('error');
             </div>
 
             <form action="/admin/catalogue/create" method="post" enctype="multipart/form-data" class="p-8 space-y-6">
-                <input type="hidden" name="_token" value="<?= htmlspecialchars($csrf_token ?? '') ?>">
+                <?= ViewHelper::csrfField() ?>
 
                 <?php if(isset($error)): ?>
                     <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg flex items-start">

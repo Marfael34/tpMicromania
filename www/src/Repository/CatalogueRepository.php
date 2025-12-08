@@ -179,4 +179,20 @@ class CatalogueRepository extends EntityRepository
     {
         return $this->findOneBy(['id' => $id]);
     }  
+
+    public function findByIdAndUser(int $id): ?Catalogue
+    {
+        return $this->findOneBy(['id' => $id]);
+    }
+    
+    /**
+     * Compte le nombre de todos d'un utilisateur
+     * 
+     * @param int $userId ID de l'utilisateur
+     * @return int Nombre de todos
+     */
+    public function countByUser(int $userId): int
+    {
+        return count($this->findByUser($userId));
+    }
 }

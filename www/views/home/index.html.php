@@ -64,11 +64,12 @@
                 </a>
             </div>
             <?php if (($user->role ?? 'user') === 'admin'): ?>
+                <!-- interface admin -->
                 <a 
                     href="/admin" 
-                    class="bg-indigo-600 px-4 py-2 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-150"
+                    class=" text-white rounded-md hover:text-[#E60028] focus:outline-none focus:ring-2 focus:ring-[#E60028] relative"
                     >   
-                        Back Office
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" width="1em" height="1em" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" ><path d="M20 22v-5c0-1.885 0-2.828-.586-3.414S17.886 13 16 13l-4 9l-4-9c-1.886 0-2.828 0-3.414.586S4 15.115 4 17v5"/><path d="m12 15l-.5 4l.5 1.5l.5-1.5zm0 0l-1-2h2zm3.5-8.5v-1a3.5 3.5 0 0 0-7 0v1a3.5 3.5 0 1 0 7 0"/></g></svg>
                     </a>
             <?php endif; ?>
            <?php use JulienLinard\Core\View\ViewHelper; ?>
@@ -76,7 +77,8 @@
              <?php if ($isAuthenticated ?? false): ?>
                 <div class="basis-2xs ">
                     <form action="/logout" method="POST" onsubmit="return confirm('Etes vous sur de vouloir vous déconnecter ?')">
-                        <input type="hidden" name="_token" value="<?= htmlspecialchars(ViewHelper::csrfToken()) ?>">             <button type="submit" class="text-sm text-white  hover:text-gray-900 transition-colors">
+                       <?= ViewHelper::csrfField() ?>          
+                       <button type="submit" class="text-sm text-white  hover:text-gray-900 transition-colors">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24">
                                 <path fill="currentColor" d="M5 21q-.825 0-1.412-.587T3 19V5q0-.825.588-1.412T5 3h7v2H5v14h7v2zm11-4l-1.375-1.45l2.55-2.55H9v-2h8.175l-2.55-2.55L16 7l5 5z"/></svg>
                         </button>

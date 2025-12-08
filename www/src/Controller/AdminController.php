@@ -303,7 +303,7 @@ class AdminController extends Controller
         }
     }
 
-     #[Route(path: '/amin/{id}/delete', methods: ['POST'], name: 'admin.delete', middleware: [new AuthMiddleware()])]
+     #[Route(path: '/admin/catalogue/{id}/delete', methods: ['POST'], name: 'admin.delete', middleware: [new AuthMiddleware()])]
     public function delete(int $id): Response
     {
         $user = $this->auth->user();
@@ -316,7 +316,7 @@ class AdminController extends Controller
         
         if (!$catalogue) {
             Session::flash('error', 'jeux introuvable');
-            return $this->redirect('/catalogue');
+            return $this->redirect('/admin/catalogue');
         }
         
         try {
@@ -331,6 +331,6 @@ class AdminController extends Controller
             Session::flash('error', 'Une erreur est survenue lors de la suppression du jeux');
         }
         
-        return $this->redirect('/catalogue');
+        return $this->redirect('/admin/catalogue');
     }
 }
