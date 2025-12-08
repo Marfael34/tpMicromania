@@ -203,26 +203,44 @@ class PanierRepository extends EntityRepository
         $todo->media = $mediaArray;
     }
 
+    /**
+     * Ajoute un article au panier via une requête SQL directe
+     */
     public function addToPanier(int $userId, int $catalogueId, int $etatId = 1): void
     {
-        // 1. Vérifier si le jeu est déjà dans le panier pour cet utilisateur (pour éviter les doublons)
-        $sqlCheck = "SELECT COUNT(*) as cnt FROM panier WHERE user_id = :u.id AND catalogue_id = :c.id";
-        $result = $this->connection->fetchAll($sqlCheck, ['u.id' => $userId, 'c.id' => $catalogueId]);
+        // 1. Vérifier si le jeu est déjà dans le panier pour cet utilisateur
+        // On utilise des noms de paramètres clairs (:userId, :catalogueId)
+        $sqlCheck = "SELECT COUNT(*) as cnt FROM panier WHERE user_id = :userId AND catalogue_id = :catalogueId";
+        
+        $result = $this->connection->fetchAll($sqlCheck, [
+            'userId' => $userId,
+            'catalogueId' => $catalogueId
+        ]);
         
         $exists = ($result[0]['cnt'] ?? 0) > 0;
 
         if ($exists) {
-            // Optionnel : Si déjà présent, on pourrait mettre à jour la quantité ou l'état
-            // Ici, on ne fait rien ou on renvoie une exception
+            // Le jeu est déjà dans le panier, on ne fait rien pour l'instant
             return;
         }
 
         // 2. Insérer dans la table panier
-        $sqlInsert = "INSERT INTO panier (user_id, catalogue_id, etat_id) VALUES (:u.id, :c.id, :e.id)";
+        $sqlInsert = "INSERT INTO panier (user_id, catalogue_id, etat_id) VALUES (:userId, :catalogueId, :etatId)";
+        
         $this->connection->execute($sqlInsert, [
-            'c.id' => $userId,
-            'c.id' => $catalogueId,
-            'e.id' => $etatId
+            'userId'      => $userId,      // Correction : on map bien l'ID utilisateur
+            'catalogueId' => $catalogueId, // Correction : on map bien l'ID du jeu
+            'etatId'      => $etatId       // Correction : on map l'état
         ]);
     }
+
+    public function removeFromPanier(int $userId, int $catalogueId): void
+{
+    $sql = "DELETE FROM panier WHERE user_id = :userId AND catalogue_id = :catalogueId";
+    
+    $this->connection->execute($sql, [
+        'userId'      => $userId,
+        'catalogueId' => $catalogueId
+    ]);
+}
 }

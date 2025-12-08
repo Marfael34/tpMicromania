@@ -139,14 +139,19 @@
                                     <h3 class="text-lg font-semibold text-gray-800 leading-tight">
                                         <?= htmlspecialchars($game['title']); ?>
                                     </h3>
-                                    <?php foreach ($game['plateformes'] as $plat): ?>
-                                        <p class="text-sm text-gray-500 mt-1"><?= htmlspecialchars($plat);?></p>
-                                    <?php endforeach; ?>
-                                    <div class="text-xs  text-gray-800 leading-tight">
-                                        <?= htmlspecialchars($game['description']); ?>
+                                    <div class="flex flex-nowrap gap-2">
+                                        <?php foreach ($game['plateformes'] as $plat): ?>
+                                            <p class="text-xs text-gray-500 mt-1"><?= htmlspecialchars($plat);?></p>
+                                        <?php endforeach; ?>
                                     </div>
+                                    
+                                    <?php if (!empty($game['description'])): ?>
+                                        <p class="text-gray-600 pb-2 mt-2 text-xs">
+                                            <?= nl2br(htmlspecialchars(mb_strimwidth($game['description'], 0, 100, "..."))) ?>
+                                        </p>
+                                    <?php endif; ?>
                                     <?php if ($game['stock'] > 0): ?>
-                                        <span class="text-sm bg-green-600 px-3 py-1 rounded-full">
+                                        <span class="text-xs  md:text-sm bg-green-600 px-3 py-1 rounded-full">
                                             En stock (<?= $game['stock']; ?>)
                                         </span>
                                     <?php else: ?>
@@ -167,26 +172,20 @@
                                     <span class="text-2xl font-bold text-red-600"><?= number_format($game['price'], 2); ?> €</span>
                                 </div>
                 
-                        <div class="flex justify-between items-center gap-2">
-                            <form action="/panier/add/<?= $game['id'] ?>" method="POST" class="w-1/2">
+                        <div class="w-full flex justify-between items-center gap-2">
+                            <form action="/panier/add/<?= $game['id'] ?>" method="POST" class="w-full">
                                 <?= ViewHelper::csrfField() ?>
                                 <button class="w-full py-2 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 transition-colors duration-200 uppercase text-xs sm:text-sm" aria-label="Ajouter Rainbow Six Siège au panier">
                                     🛒 Ajouter
                                 </button>
                             </form>
-                            <button class="w-1/2 py-2 bg-gray-200 text-gray-800 font-bold rounded-md hover:bg-gray-300 transition-colors duration-200 uppercase text-xs sm:text-sm" aria-label="Voir la fiche produit de Rainbow Six Siège">
-                                🔍 Voir produit
-                            </button>
                         </div>
                     </div>
                 </div>
             </div>
-        
         <?php endforeach; ?>
+        <div>
     <?php endif; ?>
-    </div>
 </div>
-<div>
-    
-</div>
+
     

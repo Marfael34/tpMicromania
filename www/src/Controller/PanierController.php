@@ -38,27 +38,30 @@ class PanierController extends Controller
             return $this->redirect('/login');
         }
 
-        // On vérifie que le jeu existe (optionnel mais recommandé)
-        $catalogueRepo = $this->em->getRepository(Catalogue::class); // Ou createRepository selon votre version
-        $game = $catalogueRepo->find($id);
+        // Vérification que le jeu existe
+        $catalogueRepo = $this->em->createRepository(CatalogueRepository::class, Catalogue::class);
+        $game = $catalogueRepo->findById($id);
 
         if (!$game) {
             Session::flash('error', 'Ce jeu n\'existe pas.');
             return $this->redirect('/');
         }
 
-        // On appelle la méthode du repository créée à l'étape 1
-        $panierRepo = $this->em->createRepository(PanierRepository::class, Catalogue::class); // Note: on utilise PanierRepository
+        // Initialisation du repository Panier
+        // Note: On passe Catalogue::class car Panier n'est peut-être pas une entité complète dans ton système actuel,
+        // mais c'est PanierRepository qui contient la méthode addToPanier.
+        $panierRepo = $this->em->createRepository(PanierRepository::class, Catalogue::class);
         
         try {
-            // On suppose que l'état ID 1 correspond à "Dans le panier"
+            // Ajout au panier (état 1 = dans le panier)
             $panierRepo->addToPanier($user->getId(), $id, 1);
             Session::flash('success', 'Jeu ajouté au panier avec succès !');
         } catch (Exception $e) {
-            Session::flash('error', 'Erreur lors de l\'ajout au panier.');
+            Session::flash('error', 'Erreur lors de l\'ajout au panier : ' . $e->getMessage());
         }
 
-        return $this->redirect('/panier/index');
+        // Redirection vers le panier pour voir l'ajout
+        return $this->redirect('/');
     }
 
     /**
@@ -127,28 +130,21 @@ class PanierController extends Controller
         if (!$user) {
             return $this->redirect('/login');
         }
-        
-        $catalogueRepo = $this->em->createRepository(CatalogueRepository::class, Catalogue::class);
-        $catalogue = $catalogueRepo->findByIdAndUser($id, $user->getAuthIdentifier());
-        
-        if (!$catalogue) {
-            Session::flash('error', 'jeux introuvable');
-            return $this->redirect('/panier');
-        }
+
+        // Initialisation du repository Panier
+        // On garde votre logique actuelle (passage de Catalogue::class)
+        $panierRepo = $this->em->createRepository(PanierRepository::class, Catalogue::class);
         
         try {
-            // Supprimer les médias associés (optionnel - vous pouvez garder les médias)
-            // Pour cet exemple, on ne supprime pas les médias, juste la relation
-            
-            $this->em->remove($catalogue);
-            $this->em->flush();
-            
-            Session::flash('success', 'Todo supprimé avec succès !');
+            // Appel de la méthode de suppression créée à l'étape 1
+            $panierRepo->removeFromPanier($user->getId(), $id);
+            Session::flash('success', 'Jeu supprimé du panier avec succès !');
         } catch (Exception $e) {
-            Session::flash('error', 'Une erreur est survenue lors de la suppression du todo');
+            Session::flash('error', 'Erreur lors de la suppression : ' . $e->getMessage());
         }
-        
-        return $this->redirect('/todos');
+
+        // Redirection vers le panier
+        return $this->redirect('/panier/index');
     }
     
     /**

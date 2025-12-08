@@ -73,14 +73,16 @@ Session::remove('error');
                             <?php else: ?>
                                 
                                 <?php foreach ($items as $item): ?>
+                                    
                                 <tr class="hover:bg-gray-50 transition-colors">
                                     <td class="px-6 py-4 w-32">
                                         <div class="flex-shrink-0 w-20 h-20 bg-gray-200 rounded-lg overflow-hidden border border-gray-200">
                                             <?php 
                                                 // Logique d'image : on cherche une propriété 'image' ou 'media_url'
                                                 // Adapte 'image' selon le nom exact dans ton entité Catalogue
-                                                $imageUrl = $item->image ?? null; 
+                                                $imageUrl = $item->media_path ?? null; 
                                             ?>
+                                            
                                             <?php if ($imageUrl): ?>
                                                 <img class="w-full h-full object-cover" src="<?= htmlspecialchars($imageUrl) ?>" alt="Image produit">
                                             <?php else: ?>
@@ -98,7 +100,7 @@ Session::remove('error');
                                         <div class="text-sm text-gray-500">
                                             <?php 
                                                 $desc = $item->description ?? '';
-                                                echo htmlspecialchars(strlen($desc) > 80 ? substr($desc, 0, 80) . '...' : $desc);
+                                                echo htmlspecialchars(strlen($desc) > 80 ? substr($desc, 0, 100) . '...' : $desc);
                                             ?>
                                         </div>
                                         <?php if(isset($item->price)): ?>

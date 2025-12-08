@@ -148,80 +148,84 @@ Session::remove('error');
             </a>
         </div>
         <?php else: ?>
-        <div class="space-y-4">
-            <?php foreach ($catalogue as $game): ?>
             <div class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
                 <div class="flex items-start justify-between">
-                    <div class="flex-1">
-                        <div class="flex items-center gap-3 mb-2">
-                            <h3 class="text-xl font-semibold text-gray-800 <?= $game->completed ? 'line-through text-gray-500' : '' ?>">
-                                <?= htmlspecialchars($game->title) ?>
-                            </h3>
-                            <?php if ($game->completed): ?>
-                                <span class="bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded">En attente de payment</span>
-                            <?php endif; ?>
-                        </div>
-                        
-                        <?php if ($game->description): ?>
-                            <p class="text-gray-600 mb-3"><?= nl2br(htmlspecialchars($game->description)) ?></p>
-                        <?php endif; ?>
-                        
-                        <!-- Images du todo -->
-                        <?php if (!empty($game->media) && is_array($game->media)): ?>
-                        <div class="mb-3">
-                            <div class="flex gap-2 flex-wrap">
-                                <?php foreach (array_slice($game->media, 0, 4) as $media): ?>
-                                    <?php if ($media->isImage()): ?>
-                                        <img 
-                                            src="<?= htmlspecialchars($media->path) ?>" 
-                                            alt="<?= htmlspecialchars($media->original_filename) ?>"
-                                            class="w-16 h-16 object-cover rounded border border-gray-200"
-                                            title="<?= htmlspecialchars($media->original_filename) ?>"
-                                        >
-                                    <?php endif; ?>
-                                <?php endforeach; ?>
-                                <?php if (count($game->media) > 4): ?>
-                                    <div class="w-16 h-16 bg-gray-100 rounded border border-gray-200 flex items-center justify-center text-xs text-gray-500">
-                                        +<?= count($game->media) - 4 ?>
+                    <div class="flex items-start justify-between mb-4-1">
+                        <div class="grid grid-cols-1  gap-6  md:gap-8">
+                            <?php foreach ($catalogue as $game): ?>
+                                <div>
+                                    <div class="bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
+                                    
+                                        <div class="p-4">
+                                            
+                                            <?php
+                                                // Supporte à la fois le format Array ($room['...']) et Objet ($room->...)
+                                                $mediaPath = $game['media_path'] ?? null;
+                                            ?>
+                                            
+                                            <div class="flex items-start justify-between mb-4">
+                                                <?php if (!empty($game['media_path'])): ?>
+                                                    <img 
+                                                        src="<?= htmlspecialchars($game['media_path']) ?>" 
+                                                        alt="<?= htmlspecialchars($game['title']) ?>"
+                                                        class="w-1/4 flex-shrink-0 mr-4"
+                                                        title="<?= htmlspecialchars($game['title']) ?>"
+                                                    >
+                                                <?php else: ?>
+                                                    <div class="flex items-center justify-center h-full text-gray-400">
+                                                        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                                            </path>
+                                                        </svg>
+                                                    </div>
+                                                <?php endif; ?>
+
+                                                <div class="flex-grow">
+                                                    <h3 class=" text-lg font-semibold text-gray-800 leading-tight">
+                                                        <?= htmlspecialchars($game['title']) ?>
+                                                    </h3>
+                                                    <div class="text-xs m-5  md:text-xl md:mt-20 text-gray-800 leading-tight">
+                                                        <?= htmlspecialchars($game['description']); ?>
+                                                    </div>
+                                                </div>
+                                               
+
+                                                <button class="text-gray-400 hover:text-red-500 transition-colors duration-200 p-1 flex-shrink-0" aria-label="Ajouter aux favoris">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /><!-- penser a changer les svg par ceux que j'ai choisi -->
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                                <div class="flex justify-end mb-4">
+                                                    <span class="text-2xl font-bold text-red-600"><?= number_format($game['price'], 2); ?> €</span>
+                                                </div>
+                                
+                                            <div class="flex justify-between items-center gap-2">
+                                                <form action="#" method="POST" class="w-1/2">
+                                                    <?= ViewHelper::csrfField() ?>
+                                                    <button class="w-full py-2 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 transition-colors duration-200 uppercase text-xs sm:text-sm" aria-label="Ajouter Rainbow Six Siège au panier">
+                                                         💳 Payer
+                                                    </button>
+                                                </form>
+
+                                                <form action="/catalogue/<?= htmlspecialchars($game['id']) ?>/delete" method="POST" class="w-1/2">
+                                                    <?= ViewHelper::csrfField() ?>
+                                                     <button class="w-full py-2 bg-red-600  text-white  font-bold rounded-md hover:bg-gray-300 transition-colors duration-200 uppercase text-xs sm:text-sm" aria-label="Voir la fiche produit de Rainbow Six Siège">
+                                                     ❌​ Supprimer
+                                                    </button>
+                                                </form>
+
+                                               
+                                            </div>
+                                        </div>
                                     </div>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                        <?php endif; ?>
-                        
-                        <div class="flex items-center gap-4 text-sm text-gray-500">
-                            <span>Créé le <?= $game->created_at ? $game->created_at->format('d/m/Y H:i') : '-' ?></span>
-                            <?php if ($game->updated_at && $game->updated_at != $game->created_at): ?>
-                                <span>• Modifié le <?= $game->updated_at->format('d/m/Y H:i') ?></span>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                    
-                    <div class="flex items-center gap-2 ml-4">
-                        <form method="POST" action="/todos/<?game->id ?>/toggle" class="inline">
-                            <?= \JulienLinard\Core\Middleware\CsrfMiddleware::field() ?>
-                            <button 
-                                type="submit" 
-                                class="px-3 py-1 text-sm rounded <?= $game->completed ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200' : 'bg-green-100 text-green-800 hover:bg-green-200' ?>"
-                            >
-                                <?= $game->completed ? 'Marquer non complété' : 'Marquer complété' ?>
-                            </button>
-                        </form>
-                        
-                        <form method="POST" action="/panier/<?= $game->id ?>/delete" class="inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce todo ?');">
-                            <?= \JulienLinard\Core\Middleware\CsrfMiddleware::field() ?>
-                            <button 
-                                type="submit" 
-                                class="px-3 py-1 text-sm bg-red-100 text-red-800 rounded hover:bg-red-200"
-                            >
-                                Supprimer
-                            </button>
-                        </form>
+                                </div>
+                            <?php endforeach; ?>
+                        <div>
                     </div>
                 </div>
             </div>
-            <?php endforeach; ?>
-        </div>
         <?php endif; ?>
     </div>
 </div>
