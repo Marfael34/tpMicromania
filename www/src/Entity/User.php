@@ -47,4 +47,8 @@ class User implements UserInterface
     #[Column(type: 'string', length:10)]
     public ?string $role = null;
 
+    public function getId(): ?int
+{
+    return $this->id;
+}
 }

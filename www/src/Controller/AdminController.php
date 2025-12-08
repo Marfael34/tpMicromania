@@ -19,26 +19,29 @@ use App\Entity\Plateforme;
 use JulienLinard\Router\Request;
 use JulienLinard\Router\Response;
 use App\Repository\UserRepository;
+use App\Service\FileUploadService;
 use JulienLinard\Auth\AuthManager;
 use JulienLinard\Core\Session\Session;
+use JulienLinard\Core\View\ViewHelper;
 use App\Repository\CatalogueRepository;
 use JulienLinard\Doctrine\EntityManager;
 use JulienLinard\Router\Attributes\Route;
 use JulienLinard\Core\Controller\Controller;
 use JulienLinard\Auth\Middleware\AuthMiddleware;
 use JulienLinard\Auth\Middleware\RoleMiddleware;
-use JulienLinard\Core\View\ViewHelper; // Assure-toi d'importer ceci si tu l'utilises
 
 
 class AdminController extends Controller
 {
     private AuthManager $auth;
     private EntityManager $em;
+    private FileUploadService $fileUploadService;
 
     public function __construct(AuthManager $auth, EntityManager $em)
     {
         $this->auth = $auth;
         $this->em = $em;
+        $this->fileUploadService = new FileUploadService();
     }
 
     /**
@@ -135,7 +138,6 @@ class AdminController extends Controller
 
         $plateformes = $this->em->getRepository(Plateforme::class)->findAll();
         $genres = $this->em->getRepository(Genre::class)->findAll();
-
         return $this->view("admin/create_catalogue", [
             "csrf_token" => $csrfToken,
             "user" => $this->auth->user(),
@@ -144,17 +146,69 @@ class AdminController extends Controller
             "genres" => $genres
         ]);
     }
-    public function create(): Response
+     public function create(Request $request): Response
     {
-        // On récupère toutes les plateformes (et les genres)
-        $plateformes = $this->em->getRepository(\App\Entity\Plateforme::class)->findAll();
-        $genres = $this->em->getRepository(\App\Entity\Genre::class)->findAll();
+        // 1. Récupération des données du formulaire
+        $title = trim($request->getPost('title') ?? '');
+        $description = trim($request->getPost('description') ?? '');
+        $price = (float) ($request->getPost('price') ?? 0);
+        $stock = (int) ($request->getPost('stock') ?? 0);
 
-        return $this->view('admin/create_catalogue', [
-            'title' => 'Ajouter un jeu',
-            'plateformes' => $plateformes, // On passe la variable à la vue
-            'genres' => $genres
-        ]);
+        // Récupération des IDs des cases cochées (tableaux)
+        $genreIds = $request->getPost('genres') ?? [];
+        $plateformeIds = $request->getPost('plateformes') ?? [];
+
+        // 2. Validation basique
+        if (empty($title)) {
+            Session::flash('error', 'Le titre est obligatoire');
+            return $this->redirect('/admin/catalogue/create');
+        }
+
+        try {
+            // 3. Création et hydratation de l'entité Catalogue
+            $catalogue = new Catalogue();
+            $catalogue->setTitle($title)
+                      ->setDescription($description)
+                      ->setPrice($price)
+                      ->setStock($stock);
+
+            // 4. Gestion de l'upload d'image (via ton service existant)
+            if (isset($_FILES['media']) && $_FILES['media']['error'] !== UPLOAD_ERR_NO_FILE) {
+                $result = $this->fileUploadService->upload($_FILES['media']);
+                if ($result->isSuccess()) {
+                    $data = $result->getData();
+                    $catalogue->setMediaPath($data['path']);
+                } else {
+                    Session::flash('error', 'Erreur upload : ' . $result->getError());
+                    return $this->redirect('/admin/catalogue/create');
+                }
+            }
+
+            // 5. Sauvegarde du Jeu (Catalogue) en premier
+            // C'est CRUCIAL : il faut persist et flush pour générer l'ID du jeu
+            $this->em->persist($catalogue);
+            $this->em->flush(); 
+
+            // À ce stade, $catalogue->getId() contient l'ID généré par la BDD (ex: 42)
+
+            // 6. Sauvegarde des relations (Genres et Plateformes)
+            /** @var CatalogueRepository $catalogueRepo */
+            $catalogueRepo = $this->em->createRepository(CatalogueRepository::class, Catalogue::class);
+            
+            // On appelle ta méthode magique du Repository
+            $catalogueRepo->saveManyToManyRelations(
+                $catalogue->getId(), // L'ID qu'on vient de créer
+                $genreIds,           // Les IDs des genres cochés
+                $plateformeIds       // Les IDs des plateformes cochées
+            );
+
+            Session::flash('success', 'Jeu créé avec succès et relations sauvegardées !');
+            return $this->redirect('/admin/catalogue');
+
+        } catch (\Exception $e) {
+            Session::flash('error', 'Erreur lors de la création : ' . $e->getMessage());
+            return $this->redirect('/admin/catalogue/create');
+        }
     }
 
     #[Route(path: '/admin/catalogue/edit', methods: ['GET'], name: 'admin.edit', middleware: [new AuthMiddleware('/login'), new RoleMiddleware('admin', '/')])]
@@ -179,9 +233,12 @@ class AdminController extends Controller
             return $this->redirect('/admin/catalogue');
         }
 
+        $catalogueRepo->loadRelations($catalogue);
+
         // 4. Récupérer les listes pour les checkbox
-        $plateformes = $this->em->getRepository(\App\Entity\Plateforme::class)->findAll();
-        $genres = $this->em->getRepository(\App\Entity\Genre::class)->findAll();
+        $plateformes = $this->em->getRepository(Plateforme::class)->findAll();
+        $genres = $this->em->getRepository(Genre::class)->findAll();
+
         
         // 5. Envoyer à la vue
         return $this->view('admin/edit', [
@@ -264,18 +321,21 @@ class AdminController extends Controller
             if (isset($_FILES['media']) && $_FILES['media']['error'] !== UPLOAD_ERR_NO_FILE) {
                 
                 // Upload du nouveau fichier
-                $result = $this->fileUpload->upload($_FILES['media']);
+                $result = $this->fileUploadService->upload($_FILES['media']);
 
                 if ($result->isSuccess()) {
                     $data = $result->getData();
                     $newFilename = $data['path']; // '/uploads/media_xyz.jpg'
 
                     // Suppression de l'ancien fichier s'il existe et n'est pas vide
-                    if ($catalogue->media_path) {
-                        // FileUploadService->delete attend juste le nom du fichier, on utilise basename
-                        $oldFilename = basename($catalogue->media_path);
-                        $this->fileUpload->delete($oldFilename);
-                    }
+                if ($catalogue->media_path) {
+                    // FileUploadService->delete attend juste le nom du fichier, on utilise basename
+                    $oldFilename = basename($catalogue->media_path);
+                    
+                    // CORRECTION ICI (retirez le 'p' en trop) :
+                    // AVANT : $this->fileUplpoadService->delete($oldFilename);
+                    $this->fileUploadService->delete($oldFilename);
+                }
 
                     // Mise à jour de l'entité
                     $catalogue->setMediaPath($newFilename);

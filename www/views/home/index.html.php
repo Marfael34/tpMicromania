@@ -1,3 +1,4 @@
+
 <header class="sticky top-0 z-50 bg-[#52ae32] shadow-lg">
     <div class="max-w-8xl h-16 flex items-center justify-between">
 
@@ -55,7 +56,7 @@
                     
             <!-- Panier -->
             <div class="basis-2xs">      
-                <a href="#" aria-label="Mon Panier"
+                <a href="/panier/index"
                 class=" text-white rounded-md hover:text-[#E60028] focus:outline-none focus:ring-2 focus:ring-[#E60028] relative">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -167,9 +168,12 @@
                                 </div>
                 
                         <div class="flex justify-between items-center gap-2">
-                            <button class="w-1/2 py-2 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 transition-colors duration-200 uppercase text-xs sm:text-sm" aria-label="Ajouter Rainbow Six Siège au panier">
-                                🛒 Ajouter
-                            </button>
+                            <form action="/panier/add/<?= $game['id'] ?>" method="POST" class="w-1/2">
+                                <?= ViewHelper::csrfField() ?>
+                                <button class="w-full py-2 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 transition-colors duration-200 uppercase text-xs sm:text-sm" aria-label="Ajouter Rainbow Six Siège au panier">
+                                    🛒 Ajouter
+                                </button>
+                            </form>
                             <button class="w-1/2 py-2 bg-gray-200 text-gray-800 font-bold rounded-md hover:bg-gray-300 transition-colors duration-200 uppercase text-xs sm:text-sm" aria-label="Voir la fiche produit de Rainbow Six Siège">
                                 🔍 Voir produit
                             </button>

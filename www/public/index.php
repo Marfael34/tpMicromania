@@ -26,6 +26,7 @@ use App\Service\FileUploadService;
 use JulienLinard\Auth\AuthManager;
 use JulienLinard\Core\Application;
 use App\Controller\AdminController;
+use App\Controller\PanierController;
 use App\Service\EventListenerService;
 use App\Controller\CatalogueController;
 use JulienLinard\Doctrine\EntityManager;
@@ -180,7 +181,8 @@ EventListenerService::register($events, $logger);
 // Le router scanne les contrôleurs et enregistre automatiquement les routes
 $router->registerRoutes(CatalogueController::class);
 $router->registerRoutes(AuthController::class);
-$router->registerRoutes(\App\Controller\AdminController::class);
+$router->registerRoutes(AdminController::class);
+$router->registerRoutes(PanierController::class);
 
 
 // Démarrer l'application

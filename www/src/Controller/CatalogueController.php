@@ -109,6 +109,8 @@ class CatalogueController extends Controller
             $catalogue->plateforme = $platformIds;
 
             
+
+            
             // On vérifie d'abord si un fichier a été envoyé pour éviter une erreur
             if (isset($_FILES['media']) && $_FILES['media']['error'] !== UPLOAD_ERR_NO_FILE) {
                 

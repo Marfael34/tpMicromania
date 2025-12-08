@@ -184,15 +184,88 @@ class CatalogueRepository extends EntityRepository
     {
         return $this->findOneBy(['id' => $id]);
     }
+
+        public function findByUser(int $userId): array
+    {
+        // Utiliser directement le nom de colonne 'user_id' car findBy() utilise les noms de colonnes
+        return $this->findBy(['id' => $userId]);
+    }
+
+   public function findPanierByUser(int $userId): array
+    {
+        $sql = "
+            SELECT 
+                c.id, 
+                c.title, 
+                c.media_path, 
+                c.price, 
+                c.description,
+                e.label as etat_panier,
+                e.id as etat_id
+            FROM catalogue c
+            JOIN panier p ON c.id = p.catalogue_id
+            JOIN etat e ON p.etat_id = e.id
+            WHERE p.user_id = :userId
+            ORDER BY c.title ASC
+        ";
+
+        // fetchAll fonctionne, pas de changement ici
+        return $this->connection->fetchAll($sql, ['userId' => $userId]);
+    }
     
     /**
-     * Compte le nombre de todos d'un utilisateur
-     * 
-     * @param int $userId ID de l'utilisateur
-     * @return int Nombre de todos
+     * Compte le nombre total d'articles dans le panier d'un utilisateur
      */
     public function countByUser(int $userId): int
     {
-        return count($this->findByUser($userId));
+        $sql = "SELECT COUNT(*) as total FROM panier WHERE user_id = :userId";
+        
+        // CORRECTION : On utilise fetchAll et on prend le premier élément
+        $rows = $this->connection->fetchAll($sql, ['userId' => $userId]);
+        
+        // On vérifie si on a un résultat à l'index 0
+        return isset($rows[0]['total']) ? (int)$rows[0]['total'] : 0;
+    }
+
+    /**
+     * Récupère uniquement les articles dont l'état est spécifique
+     */
+    public function findPendingByUser(int $userId): array
+    {
+        $sql = "
+            SELECT c.*, e.label as etat_panier
+            FROM catalogue c
+            JOIN panier p ON c.id = p.catalogue_id
+            JOIN etat e ON p.etat_id = e.id
+            WHERE p.user_id = :userId 
+            AND e.label = :etatLabel
+        ";
+
+        return $this->connection->fetchAll($sql, [
+            'userId' => $userId, 
+            'etatLabel' => 'en attente de paiement' 
+        ]);
+    }
+
+    /**
+     * Compte les articles en attente
+     */
+    public function countPendingByUser(int $userId): int
+    {
+        $sql = "
+            SELECT COUNT(*) as total 
+            FROM panier p
+            JOIN etat e ON p.etat_id = e.id
+            WHERE p.user_id = :userId 
+            AND e.label = :etatLabel
+        ";
+
+        // CORRECTION : On utilise fetchAll au lieu de fetch
+        $rows = $this->connection->fetchAll($sql, [
+            'userId' => $userId, 
+            'etatLabel' => 'en attente de paiement'
+        ]);
+
+        return isset($rows[0]['total']) ? (int)$rows[0]['total'] : 0;
     }
 }
