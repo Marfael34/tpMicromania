@@ -233,6 +233,26 @@ class PanierRepository extends EntityRepository
             'etatId'      => $etatId       // Correction : on map l'état
         ]);
     }
+    
+    public function getTotalPrice(int $userId): float
+    {
+        // On joint la table panier et catalogue pour récupérer les prix
+        // On filtre par l'ID utilisateur
+        $sql = "
+            SELECT SUM(c.price) as total
+            FROM panier p
+            JOIN catalogue c ON p.catalogue_id = c.id
+            WHERE p.user_id = :userId
+        ";
+        
+        // Exécution de la requête
+        $result = $this->connection->fetchAll($sql, [
+            'userId' => $userId
+        ]);
+        
+        // Retourne le total ou 0.00 si le panier est vide
+        return (float) ($result[0]['total'] ?? 0.00);
+    }
 
     public function removeFromPanier(int $userId, int $catalogueId): void
 {
