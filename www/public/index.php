@@ -28,7 +28,6 @@ use JulienLinard\Core\Application;
 use App\Controller\AdminController;
 use App\Controller\PanierController;
 use App\Service\EventListenerService;
-use App\Controller\WishlistController;
 use App\Controller\CatalogueController;
 use JulienLinard\Doctrine\EntityManager;
 use JulienLinard\Core\Middleware\CsrfMiddleware;
@@ -184,7 +183,6 @@ $router->registerRoutes(CatalogueController::class);
 $router->registerRoutes(AuthController::class);
 $router->registerRoutes(AdminController::class);
 $router->registerRoutes(PanierController::class);
-$router->registerRoutes(WishlistController::class);
 
 
 // Démarrer l'application
