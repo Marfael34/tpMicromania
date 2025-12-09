@@ -139,11 +139,8 @@ class CatalogueController extends Controller
             $this->em->flush(); 
             
             // 7. Relations
-            if (!empty($catalogue->genre)) {
-                $catalogueRepo->saveManyToManyRelations($catalogue->id, $genreIds, 'catalogue_genre');
-            }
-            if (!empty($catalogue->plateforme)) {
-                $catalogueRepo->saveManyToManyRelations($catalogue->id, $platformIds, 'catalogue_genre'); 
+            if (!empty($catalogue->genre) || !empty($catalogue->plateforme)) {
+               $catalogueRepo->saveManyToManyRelations($catalogue->id, $genreIds, $platformIds);
             }
 
             // 8. Cache
