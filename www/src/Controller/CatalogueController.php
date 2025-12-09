@@ -27,7 +27,7 @@ class CatalogueController extends Controller
         private FileUploadService $fileUpload
     ) {}
 
-    #[Route(path: '/', methods: ['GET'], name: 'home.catalogue')]
+    #[Route(path: '/', methods: ['GET'], name: 'home')]
     public function index(): Response
     {
 

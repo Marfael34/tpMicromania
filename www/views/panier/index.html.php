@@ -57,7 +57,10 @@ Session::remove('error');
                             d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                     </svg>
                 </a>
-            </div>                 
+            </div>
+
+            
+                    
             <!-- Panier -->
             <div class="basis-2xs">      
                 <a href="/panier/index"
@@ -68,10 +71,6 @@ Session::remove('error');
                     </svg>
                 </a>
             </div>
-            <!-- wishlist -->
-            <a href="/wishlist/index" class=" text-white rounded-md hover:text-[#E60028] focus:outline-none focus:ring-2 focus:ring-[#E60028] relative">   
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M20 22H4a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1m-1-2V4H5v16zM8 7h8v2H8zm0 4h8v2H8zm0 4h8v2H8z"/></svg>
-            </a>
             <?php if (($user->role ?? 'user') === 'admin'): ?>
                 <!-- interface admin -->
                 <a 
@@ -104,7 +103,6 @@ Session::remove('error');
 </header>
 <div class="container mx-auto px-4 py-8">
     <div class="max-w-6xl mx-auto">
-        <h1 class="text-4xl text-center font-bold text-gray-800 mb-4 "><?= htmlspecialchars($title ?? 'Welcome') ?></h1>
         <!-- Flash Messages -->
         <?php if ($successMessage): ?>
             <div class="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
@@ -215,21 +213,18 @@ Session::remove('error');
         <?php endif; ?>
     </div>
 </div>
-<?php if (!empty($catalogue)): ?>
-    <div class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
-        <div class="flex flex-wrap justify-end text-2xl font-bold text-red-600">
-            <h3>Total à payer : <?= number_format($total, 2, ',', ' ') ?> €</h3>
-        </div>
-        <form action="#" method="POST" class="w-1/2">
-            <?= ViewHelper::csrfField() ?>
-            <button class="w-full py-2 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 transition-colors duration-200 uppercase text-xs sm:text-sm" aria-label="Ajouter Rainbow Six Siège au panier">
-                💳 Payer
-            </button>
-        </form>
+<div class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
+    <div class="flex flex-wrap justify-end text-2xl font-bold text-red-600">
+        <h3>Total à payer : <?= number_format($total, 2, ',', ' ') ?> €</h3>
     </div>
- 
-    <div class="rounded-lg shadow-lg p-8 text-center">
-            <a href="/" class="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Continuer mes achats</a>
+    <form action="#" method="POST" class="w-1/2">
+        <?= ViewHelper::csrfField() ?>
+        <button class="w-full py-2 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 transition-colors duration-200 uppercase text-xs sm:text-sm" aria-label="Ajouter Rainbow Six Siège au panier">
+            💳 Payer
+        </button>
+    </form>
+</div>
+<div class="rounded-lg shadow-lg p-8 text-center">
+        <a href="/" class="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Continuer mes achats</a>
     </div>
-<?php endif; ?> 
 
