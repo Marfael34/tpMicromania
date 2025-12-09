@@ -52,16 +52,11 @@ class PanierController extends Controller
         // Sinon, utilisez celle du PanierRepository si vous l'avez déplacée.
         // Ici je suppose qu'on utilise celle définie précédemment :
         $panierItems = $catalogueRepo->findPanierByUser($user->getId()); 
-
-        $panierRepo = $this->em->createRepository(PanierRepository::class, Catalogue::class);
-
-        $totalPanier = $panierRepo->getTotalPrice($user->getId());
         
         
         return $this->view('panier/index', [
             'title' => 'Mon Panier',
             'catalogue' => $panierItems, // J'ai renommé 'jeux' en 'catalogue' pour matcher votre vue
-            'total' => $totalPanier,
             'user'  => $this->auth->user(),
             'isAuthenticated' => $this->auth->check()
         ]);
