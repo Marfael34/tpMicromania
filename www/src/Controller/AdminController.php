@@ -30,6 +30,7 @@ use JulienLinard\Core\Controller\Controller;
 use JulienLinard\Auth\Middleware\AuthMiddleware;
 use JulienLinard\Auth\Middleware\RoleMiddleware;
 
+use const Dom\VALIDATION_ERR;
 
 class AdminController extends Controller
 {
@@ -238,6 +239,8 @@ class AdminController extends Controller
         // 4. Récupérer les listes pour les checkbox
         $plateformes = $this->em->getRepository(Plateforme::class)->findAll();
         $genres = $this->em->getRepository(Genre::class)->findAll();
+
+        
 
         
         // 5. Envoyer à la vue

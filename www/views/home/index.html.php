@@ -15,14 +15,11 @@
 
         <!-- Barre de recherche (desktop) -->
         <div class="hidden lg:block flex-1 max-w-lg mx-6">
-            <form action="/" method="GET" class="hidden lg:block flex-1 max-w-lg mx-6">
             <label for="search-input" class="sr-only">Rechercher des produits</label>
             <div class="relative">
                 <input 
                     type="search" 
                     id="search-input" 
-                    name="search" 
-                    value="<?= htmlspecialchars($search ?? '') ?>" 
                     placeholder="Rechercher un jeu, une console..." 
                     aria-label="Champ de recherche"
                     class="w-full py-2 pl-4 pr-10 rounded-full bg-gray-700 text-white placeholder-gray-400 
@@ -39,7 +36,6 @@
                     </svg>
                 </button>
             </div>
-            </form>
         </div>
 
         <!-- Icônes (compte, panier, menu mobile) -->
@@ -55,9 +51,7 @@
                     </svg>
                 </a>
             </div>
-
-            
-                    
+ 
             <!-- Panier -->
             <div class="basis-2xs">      
                 <a href="/panier/index"
@@ -68,6 +62,13 @@
                     </svg>
                 </a>
             </div>
+                <!-- wishlist -->
+                <a 
+                    href="/wishlist/index" 
+                    class=" text-white rounded-md hover:text-[#E60028] focus:outline-none focus:ring-2 focus:ring-[#E60028] relative"
+                    >   
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M20 22H4a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1m-1-2V4H5v16zM8 7h8v2H8zm0 4h8v2H8zm0 4h8v2H8z"/></svg>
+                </a>
             <?php if (($user->role ?? 'user') === 'admin'): ?>
                 <!-- interface admin -->
                 <a 
@@ -78,8 +79,8 @@
                     </a>
             <?php endif; ?>
            <?php use JulienLinard\Core\View\ViewHelper; ?>
-            <!-- Déconexion -->
-             <?php if ($isAuthenticated ?? false): ?>
+           <!-- Déconexion -->
+            <?php if ($isAuthenticated ?? false): ?>
                 <div class="basis-2xs ">
                     <form action="/logout" method="POST" onsubmit="return confirm('Etes vous sur de vouloir vous déconnecter ?')">
                        <?= ViewHelper::csrfField() ?>          
@@ -90,22 +91,16 @@
                     </form>
                 </div>
             <?php endif?>
-            
-         </div>
-            
+            </div>    
+        </div>
     </div>
-    </div>
-
-
 </header>
 
-    <h1 class="text-4xl text-center font-bold text-gray-800 mb-4 "><?= htmlspecialchars($title ?? 'Welcome') ?></h1>
-    <p class="text-xl text-gray-800 mb-6 px-4"><?= htmlspecialchars($message ?? 'Hello World!') ?></p>
-    <?php if ($isAuthenticated ?? false): ?>
-        <p class="text-4xl text-center font-bold text-gray-800 mb-4 mt-3">Bonjour, <?= htmlspecialchars($user->firstname) ?></p>
-    <?php endif; ?>
-
-
+<h1 class="text-4xl text-center font-bold text-gray-800 mb-4 "><?= htmlspecialchars($title ?? 'Welcome') ?></h1>
+<p class="text-xl text-center text-gray-800 mb-6 px-4"><?= htmlspecialchars($message ?? 'Hello World!') ?></p>
+<?php if ($isAuthenticated ?? false): ?>
+    <p class="text-4xl text-center font-bold text-gray-800 mb-4 mt-3">Bonjour, <?= htmlspecialchars($user->firstname) ?></p>
+<?php endif; ?>
 
 <div class="mx-auto max-w-7xl px-5 py-4 bg-gray-100 bg-white">
     <h2 class="text-2xl font-bold text-gray-800 mb-6">Sélection de Jeux</h2>
@@ -160,12 +155,30 @@
                                     <?php endif; ?>
 
                                 </div>
-
-                                <button class="text-gray-400 hover:text-red-500 transition-colors duration-200 p-1 flex-shrink-0" aria-label="Ajouter aux favoris">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /><!-- penser a changer les svg par ceux que j'ai choisi -->
-                                    </svg>
-                                </button>
+                                <!-- ajout a la wishlist -->
+                                <?php 
+                                    $isInWishlist = isset($wishlistGameIds) && in_array($game['id'], $wishlistGameIds);
+                                    // Détermine l'action : retirer si déjà présent, sinon ajouter
+                                    $actionUrl = $isInWishlist ? '/catalogue/wishlist/' . $game['id'] . '/delete': '/wishlist/add/' . $game['id'];
+                                ?>
+                                 <form action="<?= $actionUrl ?>" method="post">
+                                    <?= ViewHelper::csrfField() ?>
+                                    <button class="transition-colors duration-200 p-1 flex-shrink-0 <?= $isInWishlist ? 'text-red-600 hover:text-red-800' : 'text-gray-400 hover:text-red-500' ?>" 
+                                            aria-label="<?= $isInWishlist ? 'Retirer des favoris' : 'Ajouter aux favoris' ?>">
+                                        
+                                        <?php if ($isInWishlist): ?>
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                            </svg>
+                                        <?php else: ?>
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" width="1em" height="1em" viewBox="0 0 24 24">
+                                                <path fill="currentColor" d="m12.1 18.55l-.1.1l-.11-.1C7.14 14.24 4 11.39 4 8.5C4 6.5 5.5 5 7.5 5c1.54 0 3.04 1 3.57 2.36h1.86C13.46 6 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5c0 2.89-3.14 5.74-7.9 10.05M16.5 3c-1.74 0-3.41.81-4.5 2.08C10.91 3.81 9.24 3 7.5 3C4.42 3 2 5.41 2 8.5c0 3.77 3.4 6.86 8.55 11.53L12 21.35l1.45-1.32C18.6 15.36 22 12.27 22 8.5C22 5.41 19.58 3 16.5 3"/>
+                                            </svg>
+                                        <?php endif; ?>
+                                        
+                                    </button>
+                                 </form>
+                                
                             </div>
                             <div class="flex flex-nowrap gap-2 ">
                                 Genre :

@@ -105,8 +105,7 @@ if (!isset($catalogue) || !$catalogue) {
 
                 <hr class="border-gray-200">
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div>
+                 <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-3">Plateformes compatibles</label>
                         <div class="border border-gray-200 rounded-lg p-4 max-h-48 overflow-y-auto bg-gray-50">
                             <div class="grid grid-cols-1 gap-2">
@@ -167,7 +166,6 @@ if (!isset($catalogue) || !$catalogue) {
                             </div>
                         </div>
                     </div>
-                </div>
 
                 <hr class="border-gray-200">
 
