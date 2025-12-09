@@ -12,6 +12,7 @@ use JulienLinard\Router\Response;
 use App\Middleware\AuthMiddleware;
 use App\Service\FileUploadService;
 use JulienLinard\Auth\AuthManager;
+use App\Repository\WishlistRepository;
 use JulienLinard\Core\Session\Session;
 use App\Repository\CatalogueRepository;
 use JulienLinard\Doctrine\EntityManager;
@@ -40,6 +41,13 @@ class CatalogueController extends Controller
         // Récupération catalogue + genres + plateformes
         $catalogues = $catalogueRepo->findAllWithRelations();
 
+        // Récupérer les IDs des jeux en wishlist si l'utilisateur est connecté
+        $wishlistGameIds = [];
+        if ($this->auth->check()) {
+            $wishlistRepo = $this->em->createRepository(WishlistRepository::class, Catalogue::class);
+            $wishlistGameIds = $wishlistRepo->findGameIdsByUser($user->getId());
+        }
+
         $imagePath = null;
 
         // 3. Gestion de l'image
@@ -55,6 +63,7 @@ class CatalogueController extends Controller
 }
         return $this->view('home/index', [
             'catalogues' => $catalogues,
+            'wishlistGameIds' => $wishlistGameIds,
             'test' => "bonjours",
             'title' => 'Bienvenue sur Micromania',
             'message' => 'Tous les jeux, sur toute les consoles pour vivre votre passion !',
@@ -72,8 +81,6 @@ class CatalogueController extends Controller
         if (!$user) {
             return $this->redirect('/login');
         }
-
-        $catalogueRepo = $this->em->createRepository(CatalogueRepository::class, Catalogue::class);
         
         // 2. Récupération des données du formulaire
         $title = trim((string) $request->getPost('title', ''));
@@ -140,10 +147,10 @@ class CatalogueController extends Controller
             
             // 7. Relations
             if (!empty($catalogue->genre)) {
-                $catalogueRepo->saveManyToManyRelations($catalogue->id, $genreIds, 'catalogue_genre');
+                $this->saveManyToManyRelations($catalogue, 'genre', 'catalogue_genre');
             }
             if (!empty($catalogue->plateforme)) {
-                $catalogueRepo->saveManyToManyRelations($catalogue->id, $platformIds, 'catalogue_genre'); 
+                $this->saveManyToManyRelations($catalogue, 'plateforme', 'catalogue_plateforme'); 
             }
 
             // 8. Cache
