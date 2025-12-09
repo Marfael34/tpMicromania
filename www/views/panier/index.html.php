@@ -153,6 +153,7 @@ Session::remove('error');
                     <div class="flex items-start justify-between mb-4-1">
                         <div class="grid grid-cols-1  gap-6  md:gap-8">
                             <?php foreach ($catalogue as $game): ?>
+                                
                                 <div>
                                     <div class="bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
                                     
@@ -185,9 +186,26 @@ Session::remove('error');
                                                     <h3 class=" text-lg font-semibold text-gray-800 leading-tight">
                                                         <?= htmlspecialchars($game['title']) ?>
                                                     </h3>
+                                                    <div class="flex flex-nowrap gap-2 ">
+                                                    <p class="text-lg text-gray-500 mt-1"> Genre :<?= htmlspecialchars($game['genres']);?></p>
+                                                               
+                                                    </div>
+                                                    <div class="flex flex-nowrap gap-2">
+                                                        <p class="text-lg text-gray-500 mt-1">Plateformes:<?= htmlspecialchars($game['plateformes']);?></p>
+                                
+                                                    </div>
                                                     <div class="text-xs m-5  md:text-xl md:mt-20 text-gray-800 leading-tight">
                                                         <?= htmlspecialchars($game['description']); ?>
                                                     </div>
+                                                    <?php if ($game['stock'] > 0): ?>
+                                                        <span class="text-xs  md:text-sm bg-green-600 px-3 py-1 rounded-full">
+                                                            En stock (<?= $game['stock']; ?>)
+                                                        </span>
+                                                    <?php else: ?>
+                                                        <span class="text-sm bg-red-600 px-3 py-1 rounded-full">
+                                                            Rupture
+                                                        </span>
+                                                    <?php endif; ?>
                                                 </div>
                                                
 

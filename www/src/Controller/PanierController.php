@@ -75,14 +75,15 @@ class PanierController extends Controller
             return $this->redirect('/login');
         }
         
-        // On utilise la méthode spéciale du CatalogueRepository que nous avions faite précédemment
-        // pour récupérer les infos complètes (JOIN panier, etat, etc.)
+      
+        //  récupère les infos complètes (JOIN panier, etat, etc.)
         $catalogueRepo = $this->em->createRepository(CatalogueRepository::class, Catalogue::class);
         
         // ATTENTION : Assurez-vous d'avoir la méthode findPanierByUser dans CatalogueRepository (voir conversation précédente)
         // Sinon, utilisez celle du PanierRepository si vous l'avez déplacée.
         // Ici je suppose qu'on utilise celle définie précédemment :
         $panierItems = $catalogueRepo->findPanierByUser($user->getId()); 
+        
         
         return $this->view('panier/index', [
             'title' => 'Mon Panier',

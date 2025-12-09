@@ -192,26 +192,39 @@ class CatalogueRepository extends EntityRepository
     }
 
    public function findPanierByUser(int $userId): array
-    {
-        $sql = "
-            SELECT 
-                c.id, 
-                c.title, 
-                c.media_path, 
-                c.price, 
-                c.description,
-                e.label as etat_panier,
-                e.id as etat_id
-            FROM catalogue c
-            JOIN panier p ON c.id = p.catalogue_id
-            JOIN etat e ON p.etat_id = e.id
-            WHERE p.user_id = :userId
-            ORDER BY c.title ASC
-        ";
+{
+    $sql = "
+        SELECT 
+            c.id, 
+            c.title, 
+            c.media_path, 
+            c.price, 
+            c.description,
+            c.stock,
+            e.label as etat_panier,
+            -- On regroupe tous les noms de genres dans une seule chaine (ex: 'Action, Aventure')
+            GROUP_CONCAT(DISTINCT g.label SEPARATOR ', ') as genres,
+            -- On regroupe toutes les plateformes (ex: 'PC, PS5')
+            GROUP_CONCAT(DISTINCT pl.label SEPARATOR ', ') as plateformes
+        FROM catalogue c
+        JOIN panier p ON c.id = p.catalogue_id
+        JOIN etat e ON p.etat_id = e.id
+        
+        -- Jointures pour les Genres (LEFT JOIN pour garder le jeu même sans genre)
+        LEFT JOIN catalogue_genre cg ON c.id = cg.catalogue_id
+        LEFT JOIN genre g ON cg.genre_id = g.id
+        
+        -- Jointures pour les Plateformes
+        LEFT JOIN catalogue_plateforme cp ON c.id = cp.catalogue_id
+        LEFT JOIN plateforme pl ON cp.plateforme_id = pl.id
+        
+        WHERE p.user_id = :userId
+        GROUP BY c.id, p.id
+        ORDER BY c.title ASC
+    ";
 
-        // fetchAll fonctionne, pas de changement ici
-        return $this->connection->fetchAll($sql, ['userId' => $userId]);
-    }
+    return $this->connection->fetchAll($sql, ['userId' => $userId]);
+}
     
     /**
      * Compte le nombre total d'articles dans le panier d'un utilisateur

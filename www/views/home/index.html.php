@@ -139,11 +139,6 @@
                                     <h3 class="text-lg font-semibold text-gray-800 leading-tight">
                                         <?= htmlspecialchars($game['title']); ?>
                                     </h3>
-                                    <div class="flex flex-nowrap gap-2">
-                                        <?php foreach ($game['plateformes'] as $plat): ?>
-                                            <p class="text-xs text-gray-500 mt-1"><?= htmlspecialchars($plat);?></p>
-                                        <?php endforeach; ?>
-                                    </div>
                                     
                                     <?php if (!empty($game['description'])): ?>
                                         <p class="text-gray-600 pb-2 mt-2 text-xs">
@@ -167,6 +162,18 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /><!-- penser a changer les svg par ceux que j'ai choisi -->
                                     </svg>
                                 </button>
+                            </div>
+                            <div class="flex flex-nowrap gap-2 ">
+                                Genre :
+                                        <?php foreach ($game['genres'] as $genre): ?>
+                                            <p class="text-xs text-gray-500 mt-1"><?= htmlspecialchars($genre);?></p>
+                                        <?php endforeach; ?>
+                            </div>
+                            <div class="flex flex-nowrap gap-2">
+                                        Plateformes:
+                                        <?php foreach ($game['plateformes'] as $plat): ?>
+                                            <p class="text-xs text-gray-500 mt-1"><?= htmlspecialchars($plat);?></p>
+                                        <?php endforeach; ?>
                             </div>
                                 <div class="flex justify-end mb-4">
                                     <span class="text-2xl font-bold text-red-600"><?= number_format($game['price'], 2); ?> €</span>
