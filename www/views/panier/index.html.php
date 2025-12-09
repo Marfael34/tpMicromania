@@ -118,26 +118,6 @@ Session::remove('error');
             </div>
         <?php endif; ?>
         
-        
-        <!-- Stats 
-        <?php if (isset($stats)): ?>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div class="bg-white rounded-lg shadow p-4">
-                <div class="text-sm text-gray-600">Total</div>
-                <div class="text-2xl font-bold text-gray-800"><?= $stats['total'] ?></div>
-            </div>
-            <div class="bg-green-50 rounded-lg shadow p-4">
-                <div class="text-sm text-green-600">Complétés</div>
-                <div class="text-2xl font-bold text-green-800"><?= $stats['completed'] ?></div>
-            </div>
-            <div class="bg-yellow-50 rounded-lg shadow p-4">
-                <div class="text-sm text-yellow-600">En attente</div>
-                <div class="text-2xl font-bold text-yellow-800"><?= $stats['pending'] ?></div>
-            </div>
-        </div>
-        <?php endif; ?>
-        -->
-        
         <!-- Game List -->
         <?php if (empty($catalogue)): ?>
         <div class="bg-white rounded-lg shadow-lg p-8 text-center">
@@ -209,13 +189,8 @@ Session::remove('error');
                                                         </span>
                                                     <?php endif; ?>
                                                 </div>
-
-                                                <button class="text-gray-400 hover:text-red-500 transition-colors duration-200 p-1 flex-shrink-0" aria-label="Ajouter aux favoris">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                                                    </svg>
-                                                </button>
                                             </div>
+                                            <!-- prix -->
                                             <div class="flex justify-end mb-4">
                                                 <span class="text-2xl font-bold text-red-600"><?= number_format($game['price'], 2); ?> €</span>
                                             </div>

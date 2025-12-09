@@ -211,11 +211,19 @@ Session::remove('error');
 
                                               
                                             </div>
+                                             <!-- prix -->
                                             <div class="flex justify-end mb-4">
                                                 <span class="text-2xl font-bold text-red-600"><?= number_format($game['price'], 2); ?> €</span>
                                             </div>
                                 
                                             <div class="flex justify-between items-center gap-2">
+
+                                                <form action="/panier/add/<?= $game['id'] ?>" method="POST" class="w-full">
+                                                    <?= ViewHelper::csrfField() ?>
+                                                    <button class="w-full py-2 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 transition-colors duration-200 uppercase text-xs sm:text-sm" aria-label="Ajouter Rainbow Six Siège au panier">
+                                                        🛒 Ajouter
+                                                    </button>
+                                                </form>
 
                                                 <form action="/wishlist/<?= htmlspecialchars($game['id']) ?>/delete" method="POST" class="w-full">
                                                     <?= ViewHelper::csrfField() ?>
