@@ -15,11 +15,14 @@
 
         <!-- Barre de recherche (desktop) -->
         <div class="hidden lg:block flex-1 max-w-lg mx-6">
+            <form action="/" method="GET" class="hidden lg:block flex-1 max-w-lg mx-6">
             <label for="search-input" class="sr-only">Rechercher des produits</label>
             <div class="relative">
                 <input 
                     type="search" 
                     id="search-input" 
+                    name="search" 
+                    value="<?= htmlspecialchars($search ?? '') ?>" 
                     placeholder="Rechercher un jeu, une console..." 
                     aria-label="Champ de recherche"
                     class="w-full py-2 pl-4 pr-10 rounded-full bg-gray-700 text-white placeholder-gray-400 
@@ -36,6 +39,7 @@
                     </svg>
                 </button>
             </div>
+            </form>
         </div>
 
         <!-- Icônes (compte, panier, menu mobile) -->
