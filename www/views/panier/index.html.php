@@ -57,10 +57,7 @@ Session::remove('error');
                             d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                     </svg>
                 </a>
-            </div>
-
-            
-                    
+            </div>                 
             <!-- Panier -->
             <div class="basis-2xs">      
                 <a href="/panier/index"
@@ -71,6 +68,10 @@ Session::remove('error');
                     </svg>
                 </a>
             </div>
+            <!-- wishlist -->
+            <a href="/wishlist/index" class=" text-white rounded-md hover:text-[#E60028] focus:outline-none focus:ring-2 focus:ring-[#E60028] relative">   
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M20 22H4a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1m-1-2V4H5v16zM8 7h8v2H8zm0 4h8v2H8zm0 4h8v2H8z"/></svg>
+            </a>
             <?php if (($user->role ?? 'user') === 'admin'): ?>
                 <!-- interface admin -->
                 <a 
@@ -103,6 +104,7 @@ Session::remove('error');
 </header>
 <div class="container mx-auto px-4 py-8">
     <div class="max-w-6xl mx-auto">
+        <h1 class="text-4xl text-center font-bold text-gray-800 mb-4 "><?= htmlspecialchars($title ?? 'Welcome') ?></h1>
         <!-- Flash Messages -->
         <?php if ($successMessage): ?>
             <div class="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
@@ -115,26 +117,6 @@ Session::remove('error');
                 <p class="text-sm text-red-600"><?= htmlspecialchars($errorMessage) ?></p>
             </div>
         <?php endif; ?>
-        
-        
-        <!-- Stats 
-        <?php if (isset($stats)): ?>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div class="bg-white rounded-lg shadow p-4">
-                <div class="text-sm text-gray-600">Total</div>
-                <div class="text-2xl font-bold text-gray-800"><?= $stats['total'] ?></div>
-            </div>
-            <div class="bg-green-50 rounded-lg shadow p-4">
-                <div class="text-sm text-green-600">Complétés</div>
-                <div class="text-2xl font-bold text-green-800"><?= $stats['completed'] ?></div>
-            </div>
-            <div class="bg-yellow-50 rounded-lg shadow p-4">
-                <div class="text-sm text-yellow-600">En attente</div>
-                <div class="text-2xl font-bold text-yellow-800"><?= $stats['pending'] ?></div>
-            </div>
-        </div>
-        <?php endif; ?>
-        -->
         
         <!-- Game List -->
         <?php if (empty($catalogue)): ?>
@@ -207,13 +189,8 @@ Session::remove('error');
                                                         </span>
                                                     <?php endif; ?>
                                                 </div>
-
-                                                <button class="text-gray-400 hover:text-red-500 transition-colors duration-200 p-1 flex-shrink-0" aria-label="Ajouter aux favoris">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                                                    </svg>
-                                                </button>
                                             </div>
+                                            <!-- prix -->
                                             <div class="flex justify-end mb-4">
                                                 <span class="text-2xl font-bold text-red-600"><?= number_format($game['price'], 2); ?> €</span>
                                             </div>
@@ -238,17 +215,20 @@ Session::remove('error');
         <?php endif; ?>
     </div>
 </div>
-<div class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
-    <div class="flex flex-wrap justify-end text-2xl font-bold text-red-600">
-        <h3>Total à payer : <?= number_format($total, 2, ',', ' ') ?> €</h3>
+<?php if (!empty($catalogue)): ?>
+    <div class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
+        <div class="flex flex-wrap justify-end text-2xl font-bold text-red-600">
+            <h3>Total à payer : <?= number_format($total, 2, ',', ' ') ?> €</h3>
+        </div>
+        <form action="#" method="POST" class="w-1/2">
+            <?= ViewHelper::csrfField() ?>
+            <button class="w-full py-2 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 transition-colors duration-200 uppercase text-xs sm:text-sm" aria-label="Ajouter Rainbow Six Siège au panier">
+                💳 Payer
+            </button>
+        </form>
     </div>
-    <form action="#" method="POST" class="w-1/2">
-        <?= ViewHelper::csrfField() ?>
-        <button class="w-full py-2 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 transition-colors duration-200 uppercase text-xs sm:text-sm" aria-label="Ajouter Rainbow Six Siège au panier">
-            💳 Payer
-        </button>
-    </form>
-</div>
-<div class="rounded-lg shadow-lg p-8 text-center">
-        <a href="/" class="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Continuer mes achats</a>
+ 
+    <div class="rounded-lg shadow-lg p-8 text-center">
+            <a href="/" class="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Continuer mes achats</a>
     </div>
+<?php endif; ?> 
