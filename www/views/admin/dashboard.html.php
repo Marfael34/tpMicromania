@@ -105,9 +105,6 @@ Session::remove('error');
                     <a href="/admin/catalogue" class="inline-flex items-center bg-white border border-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-50 transition-colors font-medium">
                         Gérer le catalogue
                     </a>
-                    <a href="#" class="inline-flex items-center bg-white border border-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-50 transition-colors font-medium">
-                        Gérer les utilisateurs
-                    </a>
                 </div>
             </div>
         </div>

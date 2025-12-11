@@ -14,6 +14,7 @@ use App\Service\FileUploadService;
 use JulienLinard\Auth\AuthManager;
 use App\Repository\PanierRepository;
 use JulienLinard\Core\Form\Validator;
+use App\Repository\WishlistRepository;
 use JulienLinard\Core\Session\Session;
 use App\Repository\CatalogueRepository;
 use JulienLinard\Doctrine\EntityManager;
@@ -30,39 +31,7 @@ class PanierController extends Controller
         private FileUploadService $fileUpload
     ) {}
     
-    #[Route(path: '/panier/add/{id}', methods: ['POST'], name: 'panier.add', middleware: [new AuthMiddleware()])]
-    public function add(int $id): Response
-    {
-        $user = $this->auth->user();
-        if (!$user) {
-            return $this->redirect('/login');
-        }
-
-        // Vérification que le jeu existe
-        $catalogueRepo = $this->em->createRepository(CatalogueRepository::class, Catalogue::class);
-        $game = $catalogueRepo->findById($id);
-
-        if (!$game) {
-            Session::flash('error', 'Ce jeu n\'existe pas.');
-            return $this->redirect('/');
-        }
-
-        // Initialisation du repository Panier
-        // Note: On passe Catalogue::class car Panier n'est peut-être pas une entité complète dans ton système actuel,
-        // mais c'est PanierRepository qui contient la méthode addToPanier.
-        $panierRepo = $this->em->createRepository(PanierRepository::class, Catalogue::class);
-        
-        try {
-            // Ajout au panier (état 1 = dans le panier)
-            $panierRepo->addToPanier($user->getId(), $id, 1);
-            Session::flash('success', 'Jeu ajouté au panier avec succès !');
-        } catch (Exception $e) {
-            Session::flash('error', 'Erreur lors de l\'ajout au panier : ' . $e->getMessage());
-        }
-
-        // Redirection vers le panier pour voir l'ajout
-        return $this->redirect('/');
-    }
+   
 
     /**
      * Liste (Correction de la méthode index existante pour correspondre à la vue)
@@ -97,34 +66,43 @@ class PanierController extends Controller
             'isAuthenticated' => $this->auth->check()
         ]);
     }
-    /**
-     * Affiche un todo spécifique
-     */
-    /*
-    #[Route(path: '/todos/{id}', methods: ['GET'], name: 'todos.show', middleware: [new AuthMiddleware()])]
-    public function show(int $id): Response
+
+     #[Route(path: '/panier/add/{id}', methods: ['POST'], name: 'panier.add', middleware: [new AuthMiddleware()])]
+    public function add(int $id): Response
     {
         $user = $this->auth->user();
         if (!$user) {
             return $this->redirect('/login');
         }
-        
-        $todoRepo = $this->em->createRepository(TodoRepository::class, Todo::class);
-        $todo = $todoRepo->findByIdAndUser($id, $user->getAuthIdentifier());
-        
-        if (!$todo) {
-            Session::flash('error', 'Todo introuvable');
-            return $this->redirect('/todos');
+
+        // Vérification que le jeu existe
+        $catalogueRepo = $this->em->createRepository(CatalogueRepository::class, Catalogue::class);
+        $game = $catalogueRepo->findById($id);
+
+        if (!$game) {
+            Session::flash('error', 'Ce jeu n\'existe pas.');
+            return $this->redirect('/');
         }
+
+        // Initialisation du repository Panier
+        $panierRepo = $this->em->createRepository(PanierRepository::class, Catalogue::class);
         
-        // Charger les médias associés (ManyToMany)
-        $todoRepo->loadMediaRelations($todo);
-        
-        return $this->view('todos/show', [
-            'title' => $todo->title,
-            'todo' => $todo
-        ]);
-    }*/
+        try {
+            // Ajout au panier (état 1 = dans le panier)
+            $panierRepo->addToPanier($user->getId(), $id, 1);
+            
+            $wishlistRepo = $this->em->createRepository(WishlistRepository::class, Catalogue::class);
+            $wishlistRepo->removeFromWishlist($user->getId(), $id);
+            Session::flash('success', 'Jeu ajouté au panier avec succès !');
+
+            
+        } catch (Exception $e) {
+            Session::flash('error', 'Erreur lors de l\'ajout au panier : ' . $e->getMessage());
+        }
+
+        // Redirection vers le panier pour voir l'ajout
+        return $this->redirect('/panier/index');
+    }
     
     /**
      * Supprime un jeux du panier
